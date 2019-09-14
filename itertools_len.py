@@ -85,24 +85,26 @@ class zip_longest(_IterTool):
 
 
 class _IterToolChain(_IterTool):
-    def __init__(self, iterables: t.Collection[t.Iterable], *args):
+    def __init__(self, iterables: t.Iterable[t.Iterable], *args):
         super().__init__(*args)
         self.iterables = iterables
 
     def __len__(self):
+        # Make sure we don’t iterate over a generator or so
+        len(self.iterables)
         return sum(map(len, self.iterables))
 
 
 class chain(_IterToolChain):
     __wrapped__ = itertools.chain
 
-    def __init__(self, *iterables):
+    def __init__(self, *iterables: t.Iterable):
         super().__init__(iterables, *iterables)
 
     class from_iterable(_IterToolChain):
         __wrapped__ = itertools.chain.from_iterable
 
-        def __init__(self, iterables):
+        def __init__(self, iterables: t.Iterable[t.Iterable]):
             super().__init__(iterables, iterables)
 
 
