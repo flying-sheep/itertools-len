@@ -1,6 +1,15 @@
+"""
+Building blocks for iterators, preserving their ``len()``s.
+"""
+
 import itertools
 import operator
 import typing as t
+
+from get_version import get_version
+
+__version__ = get_version(__file__)
+del get_version
 
 
 class _WrapDocMeta(type):
@@ -28,7 +37,18 @@ T = t.TypeVar("T")
 
 count = itertools.count
 cycle = itertools.cycle
-repeat = itertools.repeat
+
+
+class repeat(_IterTool):
+    def __init__(self, object: t.Any, times: t.Optional[int] = None):
+        super().__init__(object, times)
+        self.times = times
+
+    def __len__(self):
+        """Returns how many repetitions are done unless it’s infinite"""
+        if self.times is None:
+            raise TypeError("Infinite repeat")
+        return self.times
 
 
 # Unknown, shorter
@@ -61,6 +81,9 @@ class accumulate(_IterToolMap):
         self, iterable: t.Iterable, func: t.Callable[[T, T], t.Any] = operator.add
     ):
         super().__init__(iterable, iterable, func=func)
+
+
+# TODO: map
 
 
 class starmap(_IterToolMap):
@@ -137,7 +160,15 @@ class tee(_IterTool):
 
 class product(_IterTool):
     def __init__(self, *iterables: t.Iterable, repeat: int = 1):
-        raise NotImplementedError()
+        self.sequences = [tuple(i) for i in iterables]
+        self.repeat = repeat
+        super().__init__(self.sequences, repeat)
+
+    def __len__(self) -> int:
+        length = 1
+        for seq in self.sequences:
+            length *= len(seq)
+        return length * self.repeat
 
 
 class permutations(_IterTool):

@@ -1,0 +1,46 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+dist-name = 'itertools-len'
+module = 'itertools_len'
+author = 'Philipp A.'
+author-email = 'flying-sheep@web.de'
+home-page = 'https://github.com/flying-sheep/itertools-len'
+description-file = 'README.rst'
+classifiers = [
+    'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+    'Development Status :: 4 - Beta',
+    'Intended Audience :: Developers',
+    'Programming Language :: Python :: 3',
+]
+requires-python = '>= 3.6'
+requires = ['get_version']
+
+[tool.flit.metadata.requires-extra]
+test = ['pytest']
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py36, py37, py38, static
+skip_missing_interpreters = true
+isolated_build = true
+
+[testenv]
+extras = test
+commands = python -m pytest {posargs}
+
+[testenv:static]
+deps =
+    black
+    docutils
+commands =
+    black . --check --diff
+    rst2html.py --halt=2 README.rst >/dev/null
+skip_install = true
+"""
+
+[tool.black]
+target-version = ['py36']

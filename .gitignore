@@ -1,5 +1,11 @@
 # Python
 __pycache__/
 
+# Packaging
+/dist/
+
 # Testing
 /.pytest_cache/
+
+# IDEs
+/.idea/
