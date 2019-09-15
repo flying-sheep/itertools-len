@@ -1,3 +1,5 @@
+import itertools
+
 import pytest
 
 import itertools_len
@@ -39,8 +41,22 @@ def test_all_available():
         slice(0, 20),
     ],
 )
-def test_islice_len(slice):
+def test_islice(slice):
     l = list(range(10))
-    assert len(l[slice]) == len(
-        itertools_len.islice(l, slice.start, slice.stop, slice.step)
-    )
+    s = itertools_len.islice(l, slice.start, slice.stop, slice.step)
+    assert len(l[slice]) == len(s)
+    assert l[slice] == list(s)
+
+
+def test_product_multiple():
+    prod = itertools_len.product("ab", [1, 2])
+    assert len(prod) == 4
+    assert list(prod) == [("a", 1), ("a", 2), ("b", 1), ("b", 2)]
+
+
+@pytest.mark.parametrize("reps", [1, 2, 3])
+def test_product_multiple(reps):
+    expected = list(itertools.product("ABCD", repeat=reps))
+    prod = itertools_len.product("ABCD", repeat=reps)
+    assert len(expected) == len(prod)
+    assert expected == list(prod)

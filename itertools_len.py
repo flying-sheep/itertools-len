@@ -232,29 +232,37 @@ class tee(metaclass=_WrapDocMeta):
 
 
 class product(_IterTool):
+    __wrapped__ = itertools.product
+
     def __init__(self, *iterables: t.Iterable[A], repeat: int = 1):
         self.sequences = [tuple(i) for i in iterables]
         self.repeat = repeat
-        super().__init__(self.sequences, repeat)
+        super().__init__(*self.sequences, repeat=repeat)
 
     def __len__(self) -> int:
         length = 1
         for seq in self.sequences:
             length *= len(seq)
-        return length * self.repeat
+        return length ** self.repeat
 
 
 class permutations(_IterTool):
+    __wrapped__ = itertools.permutations
+
     def __init__(self, iterable: t.Iterable, r: int = None):
         raise NotImplementedError()
 
 
 class combinations(_IterTool):
+    __wrapped__ = itertools.combinations
+
     def __init__(self, iterable: t.Iterable, r: int):
         raise NotImplementedError()
 
 
 class combinations_with_replacement(_IterTool):
+    __wrapped__ = itertools.combinations_with_replacement
+
     def __init__(self, iterable: t.Iterable, r: int):
         raise NotImplementedError()
 
