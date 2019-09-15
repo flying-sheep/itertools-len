@@ -134,17 +134,44 @@ class chain(_IterToolChain):
 # Slices
 
 
+class _Missing:
+    pass
+
+
+_missing = _Missing()
+
+
 class islice(_IterTool):
+    __wrapped__ = itertools.islice
+
     def __init__(
         self,
         iterable: t.Iterable,
-        start: int,
-        stop: t.Optional[int] = None,
+        start: t.Optional[int],
+        stop: t.Union[int, _Missing] = _missing,
         step: t.Optional[int] = None,
     ):
-        if stop is None and step is None:
+        if stop is _missing:
             start, stop = 0, start
-        raise NotImplementedError()
+        super().__init__(iterable, start, stop, step)
+        assert start is None or start >= 0
+        assert stop is None or stop >= 0
+        assert step is None or step > 0
+        self.iterable = iterable
+        self.start = 0 if start is None else start
+        self.stop = stop
+        self.step = 1 if step is None else step
+
+    def __len__(self) -> int:
+        stop = self.stop
+        if stop is None or stop > len(self.iterable):
+            stop = len(self.iterable)
+        import math
+
+        if self.start < stop:
+            return math.ceil((stop - self.start) / self.step)
+        else:  # start >= stop
+            return 0
 
 
 # Tees
