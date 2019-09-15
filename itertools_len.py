@@ -10,12 +10,14 @@ import typing as t
 from get_version import get_version
 
 __version__ = get_version(__file__)
-del get_version
+
+A = t.TypeVar("A")
+T = t.TypeVar("T")
 
 
 class _WrapDocMeta(type):
     @property
-    def __doc__(cls):
+    def __doc__(cls) -> str:
         # TODO: Allow overriding __doc__
         return cls.__wrapped__.__doc__
 
@@ -26,11 +28,8 @@ class _IterTool(metaclass=_WrapDocMeta):
     def __init__(self, *args, **kwargs):
         self.itertool = self.__wrapped__(*args, **kwargs)
 
-    def __iter__(self):
+    def __iter__(self) -> t.Iterator[T]:
         return iter(self.itertool)
-
-
-T = t.TypeVar("T")
 
 
 # Infinites
@@ -41,11 +40,11 @@ cycle = itertools.cycle
 
 
 class repeat(_IterTool):
-    def __init__(self, object: t.Any, times: t.Optional[int] = None):
+    def __init__(self, object: T, times: t.Optional[int] = None):
         super().__init__(object, times)
         self.times = times
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Returns how many repetitions are done unless it’s infinite"""
         if self.times is None:
             raise TypeError("Infinite repeat")
@@ -66,7 +65,7 @@ takewhile = itertools.takewhile
 
 
 class _IterToolMap(_IterTool):
-    def __init__(self, iterable: t.Iterable[T], *args, **kwargs):
+    def __init__(self, iterable: t.Iterable[A], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.iterable = iterable
 
@@ -79,7 +78,7 @@ class accumulate(_IterToolMap):
     __wrapped__ = itertools.accumulate
 
     def __init__(
-        self, iterable: t.Iterable, func: t.Callable[[T, T], t.Any] = operator.add
+        self, iterable: t.Iterable[A], func: t.Callable[[A, A], T] = operator.add
     ):
         super().__init__(iterable, iterable, func=func)
 
@@ -87,15 +86,16 @@ class accumulate(_IterToolMap):
 class starmap(_IterToolMap):
     __wrapped__ = itertools.starmap
 
-    # Can’t properly type this as Callable[ArgsTuple, Any] doesn’t work.
-    def __init__(self, function: t.Callable, iterable: t.Iterable):
+    # Can’t properly type this as Callable[ArgsTuple, T] doesn’t work.
+    def __init__(self, function: t.Callable[..., T], iterable: t.Iterable[t.Any]):
         super().__init__(iterable, function, iterable)
 
 
 class map(_IterTool):
     __wrapped__ = builtins.map
 
-    def __init__(self, func: t.Callable, *iterables: t.Iterable[T]):
+    # Similar as with starmap
+    def __init__(self, func: t.Callable[..., T], *iterables: t.Iterable[t.Any]):
         super().__init__(func, *iterables)
         self.iterables = iterables
 
@@ -107,7 +107,9 @@ class map(_IterTool):
 class zip_longest(_IterTool):
     __wrapped__ = itertools.zip_longest
 
-    def __init__(self, *iterables: t.Iterable[T], fillvalue: t.Optional[T] = None):
+    def __init__(
+        self, *iterables: t.Iterable[t.Any], fillvalue: t.Optional[t.Any] = None
+    ):
         super().__init__(*iterables, fillvalue=fillvalue)
         self.iterables = iterables
 
@@ -120,11 +122,11 @@ class zip_longest(_IterTool):
 
 
 class _IterToolChain(_IterTool):
-    def __init__(self, iterables: t.Iterable[t.Iterable], *args):
+    def __init__(self, iterables: t.Iterable[t.Iterable[T]], *args):
         super().__init__(*args)
         self.iterables = iterables
 
-    def __len__(self):
+    def __len__(self) -> int:
         # Make sure we don’t iterate over a generator or so
         len(self.iterables)
         return sum(map(len, self.iterables))
@@ -133,13 +135,13 @@ class _IterToolChain(_IterTool):
 class chain(_IterToolChain):
     __wrapped__ = itertools.chain
 
-    def __init__(self, *iterables: t.Iterable):
+    def __init__(self, *iterables: t.Iterable[T]):
         super().__init__(iterables, *iterables)
 
     class from_iterable(_IterToolChain):
         __wrapped__ = itertools.chain.from_iterable
 
-        def __init__(self, iterables: t.Iterable[t.Iterable]):
+        def __init__(self, iterables: t.Iterable[t.Iterable[T]]):
             super().__init__(iterables, iterables)
 
 
@@ -158,7 +160,7 @@ class islice(_IterTool):
 
     def __init__(
         self,
-        iterable: t.Iterable,
+        iterable: t.Iterable[T],
         start: t.Optional[int],
         stop: t.Union[int, _Missing] = _missing,
         step: t.Optional[int] = None,
@@ -189,16 +191,48 @@ class islice(_IterTool):
 # Tees
 
 
-class tee(_IterTool):
-    def __init__(self, iterable: t.Iterable, n: int = 2):
-        raise NotImplementedError()
+# Can’t subclass _IterTool as we have nothing to be __wrapped__.
+# Also we initialized with already created itertools.
+class _tee:
+    def __init__(self, itertool: t.Iterable[T], it_orig: t.Iterable[T]):
+        self.itertool = itertool
+        self.it_orig = it_orig
+
+    def __iter__(self) -> t.Iterator[T]:
+        return iter(self.itertool)
+
+    def __len__(self) -> int:
+        return len(self.it_orig)
+
+
+# Can’t subclass collections.abc.collection as we already use a metaclass
+class tee(metaclass=_WrapDocMeta):
+    __wrapped__ = itertools.tee
+
+    def __init__(self, iterable: t.Iterable[T], n: int = 2):
+        self.itertools = tuple(
+            _tee(it, iterable) for it in self.__wrapped__(iterable, n)
+        )
+
+    def __getitem__(self, item: int) -> _tee:
+        return self.itertools[item]
+
+    def __iter__(self) -> t.Iterator[_tee]:
+        return iter(self.itertools)
+
+    def __reversed__(self) -> t.Iterator[_tee]:
+        return reversed(self.itertools)
+
+    def len(self) -> int:
+        """Number of iterators returned"""
+        return len(self.itertools)
 
 
 # Permutations
 
 
 class product(_IterTool):
-    def __init__(self, *iterables: t.Iterable, repeat: int = 1):
+    def __init__(self, *iterables: t.Iterable[A], repeat: int = 1):
         self.sequences = [tuple(i) for i in iterables]
         self.repeat = repeat
         super().__init__(self.sequences, repeat)
@@ -228,4 +262,4 @@ class combinations_with_replacement(_IterTool):
 # Cleanup
 
 
-del itertools, operator, t, T
+del itertools, operator, t, get_version, T
