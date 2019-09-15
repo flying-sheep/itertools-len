@@ -3,6 +3,7 @@ Building blocks for iterators, preserving their ``len()``s.
 """
 
 import itertools
+import builtins
 import operator
 import typing as t
 
@@ -83,9 +84,6 @@ class accumulate(_IterToolMap):
         super().__init__(iterable, iterable, func=func)
 
 
-# TODO: map
-
-
 class starmap(_IterToolMap):
     __wrapped__ = itertools.starmap
 
@@ -94,7 +92,21 @@ class starmap(_IterToolMap):
         super().__init__(iterable, function, iterable)
 
 
+class map(_IterTool):
+    __wrapped__ = builtins.map
+
+    def __init__(self, func: t.Callable, *iterables: t.Iterable[T]):
+        super().__init__(func, *iterables)
+        self.iterables = iterables
+
+    def __len__(self) -> int:
+        """The length of the shortest iterable"""
+        return min(len(iterable) for iterable in self.iterables)
+
+
 class zip_longest(_IterTool):
+    __wrapped__ = itertools.zip_longest
+
     def __init__(self, *iterables: t.Iterable[T], fillvalue: t.Optional[T] = None):
         super().__init__(*iterables, fillvalue=fillvalue)
         self.iterables = iterables
