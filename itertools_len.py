@@ -250,7 +250,31 @@ class permutations(_IterTool):
     __wrapped__ = itertools.permutations
 
     def __init__(self, iterable: t.Iterable, r: int = None):
-        raise NotImplementedError()
+        self.elements = tuple(iterable)
+        self.r = len(self.elements) if r is None else r
+        super().__init__(self.elements, r)
+
+    def __len__(self) -> int:
+        from math import factorial
+
+        n = len(self.elements)
+        return factorial(n) // factorial(n - self.r)
+
+
+def _ncomb(n: int, r: int) -> int:
+    try:
+        from scipy.special import comb
+    except ImportError:
+        pass
+    else:
+        return comb(n, r, exact=True)
+
+    if r < n / 2:  # optimize
+        r = n - r
+    ncomb = 1
+    for y0, y1 in zip(range(n - r + 1, n + 1), range(1, r + 1)):
+        ncomb *= y0 / y1
+    return ncomb
 
 
 class combinations(_IterTool):

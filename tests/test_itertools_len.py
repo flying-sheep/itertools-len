@@ -55,8 +55,23 @@ def test_product_multiple():
 
 
 @pytest.mark.parametrize("reps", [1, 2, 3])
-def test_product_multiple(reps):
+def test_product_rep(reps):
     expected = list(itertools.product("ABCD", repeat=reps))
     prod = itertools_len.product("ABCD", repeat=reps)
     assert len(expected) == len(prod)
     assert expected == list(prod)
+
+
+def test_permutations_all():
+    expected = list(itertools.permutations(range(3)))
+    perms = itertools_len.permutations(range(3))
+    assert len(expected) == len(perms)
+    assert expected == list(perms)
+
+
+@pytest.mark.parametrize("reps", [1, 2, 3])
+def test_permutations_subset(reps):
+    expected = list(itertools.permutations("ABCD", reps))
+    perms = itertools_len.permutations("ABCD", reps)
+    assert len(expected) == len(perms)
+    assert expected == list(perms)
