@@ -304,7 +304,12 @@ class combinations_with_replacement(_IterTool):
     __wrapped__ = itertools.combinations_with_replacement
 
     def __init__(self, iterable: t.Iterable, r: int):
-        raise NotImplementedError()
+        self.elements = tuple(iterable)
+        self.r = r
+        super().__init__(self.elements, r)
+
+    def __len__(self) -> int:
+        return _ncomb(self.r + len(self.elements) - 1, self.r)
 
 
 # Cleanup
