@@ -257,6 +257,14 @@ class permutations(_IterTool):
         super().__init__(self.elements, r)
 
     def __len__(self) -> int:
+        """
+        The number of r-permutations of n elements [Uspensky37]_.
+        
+        .. [Uspensky37] Uspensky et al. (1937),
+           *Introduction To Mathematical Probability* p. 18,
+           `Mcgraw-hill Book Company London
+           <https://archive.org/details/in.ernet.dli.2015.263184/page/n8>`.
+        """
         from math import factorial
 
         n = len(self.elements)
@@ -271,11 +279,11 @@ def _ncomb(n: int, r: int) -> int:
     else:
         return comb(n, r, exact=True)
 
-    if r < n / 2:  # optimize
-        r = n - r
-    ncomb = 1
-    for y0, y1 in zip(range(n - r + 1, n + 1), range(1, r + 1)):
-        ncomb *= y0 / y1
+    ncomb = 1    
+    for i in range(1, min(r, n - r) + 1):
+        ncomb *= n
+        ncomb //= i
+        n -= 1
     return ncomb
 
 
@@ -283,7 +291,13 @@ class combinations(_IterTool):
     __wrapped__ = itertools.combinations
 
     def __init__(self, iterable: t.Iterable, r: int):
-        raise NotImplementedError()
+        self.elements = tuple(iterable)
+        self.r = r
+        super().__init__(self.elements, r)
+
+    def __len__(self) -> int:
+        """The binomial coefficient (n over r)"""
+        return _ncomb(len(self.elements), self.r)
 
 
 class combinations_with_replacement(_IterTool):
