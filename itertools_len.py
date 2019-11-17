@@ -23,7 +23,7 @@ class _WrapDocMeta(type):
 
 
 class _IterTool(metaclass=_WrapDocMeta):
-    __wrapped__: t.Callable
+    __wrapped__: t.ClassVar[t.Callable]
 
     def __init__(self, *args, **kwargs):
         self.itertool = self.__wrapped__(*args, **kwargs)
@@ -40,6 +40,8 @@ cycle = itertools.cycle
 
 
 class repeat(_IterTool):
+    __wrapped__ = itertools.repeat
+
     def __init__(self, object: T, times: t.Optional[int] = None):
         super().__init__(object, times)
         self.times = times
