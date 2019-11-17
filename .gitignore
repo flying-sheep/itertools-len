@@ -6,6 +6,7 @@ __pycache__/
 
 # Testing
 /.pytest_cache/
+/.tox/
 
 # IDEs
 /.idea/
