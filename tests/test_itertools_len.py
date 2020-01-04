@@ -12,7 +12,7 @@ def exports(mod):
 
 
 def test_all_available():
-    assert list(exports(itertools_len)) == list(exports(itertools_len))
+    assert set(exports(itertools)) | {"map"} == set(exports(itertools_len))
 
 
 @pytest.mark.parametrize(

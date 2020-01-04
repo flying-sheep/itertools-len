@@ -6,6 +6,7 @@ import itertools
 import builtins
 import operator
 import typing as t
+from types import FunctionType
 
 from get_version import get_version
 
@@ -16,6 +17,8 @@ T = t.TypeVar("T")
 
 
 class _WrapDocMeta(type):
+    __wrapped__: t.Union[FunctionType, t.Type]
+
     @property
     def __doc__(cls) -> str:
         # TODO: Allow overriding __doc__
@@ -279,7 +282,7 @@ def _ncomb(n: int, r: int) -> int:
     else:
         return comb(n, r, exact=True)
 
-    ncomb = 1    
+    ncomb = 1
     for i in range(1, min(r, n - r) + 1):
         ncomb *= n
         ncomb //= i
@@ -315,4 +318,4 @@ class combinations_with_replacement(_IterTool):
 # Cleanup
 
 
-del itertools, operator, t, get_version, T
+del builtins, itertools, operator, t, FunctionType, get_version, A, T
