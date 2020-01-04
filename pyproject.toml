@@ -1,6 +1,6 @@
 [build-system]
-requires = ["flit"]
-build-backend = "flit.buildapi"
+requires = ['flit']
+build-backend = 'flit.buildapi'
 
 [tool.flit.metadata]
 dist-name = 'itertools-len'
@@ -19,7 +19,7 @@ requires-python = '>= 3.6'
 requires = ['get_version']
 
 [tool.flit.metadata.requires-extra]
-test = ['pytest']
+test = ['pytest', 'black']
 
 [tool.tox]
 legacy_tox_ini = """
