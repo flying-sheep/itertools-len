@@ -1,6 +1,15 @@
 itertools-len
 =============
 
+|pkg| |docs| |ci|
+
+.. |pkg| image:: https://img.shields.io/pypi/v/itertools-len
+   :target: https://pypi.org/project/itertools-len
+.. |docs| image:: https://readthedocs.org/projects/itertools-len/badge/?version=latest
+   :target: https://itertools-len.readthedocs.io
+.. |ci| image:: https://travis-ci.org/flying-sheep/itertools-len.svg?branch=master
+   :target: https://travis-ci.org/flying-sheep/itertools-len
+
 Have you ever been annoyed that the length information of ``itertools`` have not been preserved?
 
 This module faithfully wraps every one of them (together with ``map``) where ``len`` can be derived:
