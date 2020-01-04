@@ -1,0 +1,15 @@
+dist: bionic
+language: python
+cache: pip
+python:
+  - 3.6
+  - 3.7
+  - 3.8
+install:
+  - pip install flit codecov pytest-cov
+  - flit install --deps develop
+script:
+  - PYTHONPATH=. pytest --cov=itertools_len
+  - black --check --diff .
+  - rst2html.py --halt=2 README.rst >/dev/null
+after_success: codecov
