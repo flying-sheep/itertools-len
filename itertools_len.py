@@ -1,5 +1,13 @@
-"""
-Building blocks for iterators, preserving their ``len()``s.
+r"""
+Building blocks for iterators, preserving their :func:`len`\ s.
+
+This module contains length-preserving wrappers for all :mod:`itertools`
+and the builtin :func:`map`. To use it as drop-in replacement, do:
+
+.. code:: python
+
+   import itertools_len as itertools
+   from itertools_len import map
 """
 
 import itertools
@@ -17,25 +25,40 @@ T = t.TypeVar("T")
 
 
 class _WrapDocMeta(type):
-    __wrapped__: t.Union[FunctionType, t.Type]
+    _wrapped: t.Union[FunctionType, t.Type]
 
     @property
     def __doc__(cls) -> str:
         # TODO: Allow overriding __doc__
-        return cls.__wrapped__.__doc__
+        from inspect import getdoc
+
+        patched = "\n".join(
+            line for line in getdoc(cls._wrapped).splitlines() if ") --> " not in line
+        )
+        patched = patched.replace("repeat(object [,times]) -> ", "")
+        typ = "meth" if "." in cls._wrapped.__qualname__ else "func"
+        prefix = "" if cls is map else "itertools."
+        return f"{patched.strip()} Wraps :{typ}:`{prefix}{cls._wrapped.__qualname__}`."
 
 
 class _IterTool(metaclass=_WrapDocMeta):
-    __wrapped__: t.ClassVar[t.Callable]
+    _wrapped: t.ClassVar[t.Callable]
 
     def __init__(self, *args, **kwargs):
-        self.itertool = self.__wrapped__(*args, **kwargs)
+        self.itertool = self._wrapped(*args, **kwargs)
 
     def __iter__(self) -> t.Iterator[T]:
         return iter(self.itertool)
 
 
-# Infinites
+__doc__ += """
+Infinites
+---------
+:func:`~itertools.count` and :func:`~itertools.cycle` yield infinitely many values
+and are therefore simply re-exported. :func:`repeat` is finite if ``times`` is passed.
+
+.. autofunction:: repeat
+"""
 
 
 count = itertools.count
@@ -43,7 +66,7 @@ cycle = itertools.cycle
 
 
 class repeat(_IterTool):
-    __wrapped__ = itertools.repeat
+    _wrapped = itertools.repeat
 
     def __init__(self, object: T, times: t.Optional[int] = None):
         super().__init__(object, times)
@@ -56,7 +79,14 @@ class repeat(_IterTool):
         return self.times
 
 
-# Unknown, shorter
+__doc__ += """
+Shortening/filtering
+--------------------
+:func:`~itertools.compress`, :func:`~itertools.combinations`,
+:func:`~itertools.filterfalse`, :func:`~itertools.groupby`, and
+:func:`~itertools.takewhile` all shorten the passed iterable.
+Therefore no length can be determined and they are simply re-exported.
+"""
 
 
 compress = itertools.compress
@@ -66,7 +96,17 @@ groupby = itertools.groupby
 takewhile = itertools.takewhile
 
 
-# Maps
+__doc__ += """
+Mapping
+-------
+The following functions map an input iterable 1:1 to an output.
+For inputs with a length, the output length is the same:
+
+.. autofunction:: accumulate
+.. autofunction:: starmap
+.. autofunction:: map
+.. autofunction:: zip_longest
+"""
 
 
 class _IterToolMap(_IterTool):
@@ -80,7 +120,7 @@ class _IterToolMap(_IterTool):
 
 
 class accumulate(_IterToolMap):
-    __wrapped__ = itertools.accumulate
+    _wrapped = itertools.accumulate
 
     def __init__(
         self, iterable: t.Iterable[A], func: t.Callable[[A, A], T] = operator.add
@@ -89,7 +129,7 @@ class accumulate(_IterToolMap):
 
 
 class starmap(_IterToolMap):
-    __wrapped__ = itertools.starmap
+    _wrapped = itertools.starmap
 
     # Can’t properly type this as Callable[ArgsTuple, T] doesn’t work.
     def __init__(self, function: t.Callable[..., T], iterable: t.Iterable[t.Any]):
@@ -97,7 +137,7 @@ class starmap(_IterToolMap):
 
 
 class map(_IterTool):
-    __wrapped__ = builtins.map
+    _wrapped = builtins.map
 
     # Similar as with starmap
     def __init__(self, func: t.Callable[..., T], *iterables: t.Iterable[t.Any]):
@@ -110,7 +150,7 @@ class map(_IterTool):
 
 
 class zip_longest(_IterTool):
-    __wrapped__ = itertools.zip_longest
+    _wrapped = itertools.zip_longest
 
     def __init__(
         self, *iterables: t.Iterable[t.Any], fillvalue: t.Optional[t.Any] = None
@@ -123,7 +163,15 @@ class zip_longest(_IterTool):
         return max(len(iterable) for iterable in self.iterables)
 
 
-# Chains
+__doc__ += """
+Chaining
+--------
+The following functions concatenate the input iterables.
+Its length is therefore the sum of the inputs’ lengths.
+
+.. autofunction:: chain
+.. autofunction:: itertools_len::chain.from_iterable
+"""
 
 
 class _IterToolChain(_IterTool):
@@ -138,19 +186,25 @@ class _IterToolChain(_IterTool):
 
 
 class chain(_IterToolChain):
-    __wrapped__ = itertools.chain
+    _wrapped = itertools.chain
 
     def __init__(self, *iterables: t.Iterable[T]):
         super().__init__(iterables, *iterables)
 
     class from_iterable(_IterToolChain):
-        __wrapped__ = itertools.chain.from_iterable
+        _wrapped = itertools.chain.from_iterable
 
         def __init__(self, iterables: t.Iterable[t.Iterable[T]]):
             super().__init__(iterables, iterables)
 
 
-# Slices
+__doc__ += """
+Slicing
+-------
+The following function slices iterables like :func:`slice`, but lazily.
+
+.. autofunction:: islice
+"""
 
 
 class _Missing:
@@ -161,7 +215,7 @@ _missing = _Missing()
 
 
 class islice(_IterTool):
-    __wrapped__ = itertools.islice
+    _wrapped = itertools.islice
 
     def __init__(
         self,
@@ -193,10 +247,16 @@ class islice(_IterTool):
             return 0
 
 
-# Tees
+__doc__ += """
+Splitting
+---------
+The following function splits an iterable into multiple independent iterators.
+
+.. autofunction:: tee
+"""
 
 
-# Can’t subclass _IterTool as we have nothing to be __wrapped__.
+# Can’t subclass _IterTool as we have nothing to be _wrapped.
 # Also we initialized with already created itertools.
 class _tee:
     def __init__(self, itertool: t.Iterable[T], it_orig: t.Iterable[T]):
@@ -212,12 +272,10 @@ class _tee:
 
 # Can’t subclass collections.abc.collection as we already use a metaclass
 class tee(metaclass=_WrapDocMeta):
-    __wrapped__ = itertools.tee
+    _wrapped = itertools.tee
 
     def __init__(self, iterable: t.Iterable[T], n: int = 2):
-        self.itertools = tuple(
-            _tee(it, iterable) for it in self.__wrapped__(iterable, n)
-        )
+        self.itertools = tuple(_tee(it, iterable) for it in self._wrapped(iterable, n))
 
     def __getitem__(self, item: int) -> _tee:
         return self.itertools[item]
@@ -233,11 +291,22 @@ class tee(metaclass=_WrapDocMeta):
         return len(self.itertools)
 
 
-# Permutations
+__doc__ += """
+Permutations and combinations
+-----------------------------
+The following functions return permutations and combinations of input sequences.
+
+.. autofunction:: product
+.. autofunction:: permutations
+.. automethod:: permutations.__len__
+.. autofunction:: combinations
+.. automethod:: combinations.__len__
+.. autofunction:: combinations_with_replacement
+"""
 
 
 class product(_IterTool):
-    __wrapped__ = itertools.product
+    _wrapped = itertools.product
 
     def __init__(self, *iterables: t.Iterable[A], repeat: int = 1):
         self.sequences = [tuple(i) for i in iterables]
@@ -252,7 +321,7 @@ class product(_IterTool):
 
 
 class permutations(_IterTool):
-    __wrapped__ = itertools.permutations
+    _wrapped = itertools.permutations
 
     def __init__(self, iterable: t.Iterable, r: int = None):
         self.elements = tuple(iterable)
@@ -262,7 +331,7 @@ class permutations(_IterTool):
     def __len__(self) -> int:
         """
         The number of r-permutations of n elements [Uspensky37]_.
-        
+
         .. [Uspensky37] Uspensky et al. (1937),
            *Introduction To Mathematical Probability* p. 18,
            `Mcgraw-hill Book Company London
@@ -291,7 +360,7 @@ def _ncomb(n: int, r: int) -> int:
 
 
 class combinations(_IterTool):
-    __wrapped__ = itertools.combinations
+    _wrapped = itertools.combinations
 
     def __init__(self, iterable: t.Iterable, r: int):
         self.elements = tuple(iterable)
@@ -304,7 +373,7 @@ class combinations(_IterTool):
 
 
 class combinations_with_replacement(_IterTool):
-    __wrapped__ = itertools.combinations_with_replacement
+    _wrapped = itertools.combinations_with_replacement
 
     def __init__(self, iterable: t.Iterable, r: int):
         self.elements = tuple(iterable)
