@@ -21,6 +21,9 @@ requires = ['get_version']
 [tool.flit.metadata.requires-extra]
 test = ['pytest', 'black']
 
+[tool.flit.metadata.urls]
+Documentation = "https://itertools-len.readthedocs.io/"
+
 [tool.tox]
 legacy_tox_ini = """
 [tox]
