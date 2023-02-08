@@ -199,6 +199,32 @@ class chain(_IterToolChain):
 
 
 __doc__ += """
+Pairwise
+--------
+The following function can loop over a sequence in pairs.
+
+This method has been introduced in Python 3.10, so its length-aware equivalent is only
+available starting from this Python version.
+
+.. autofunction:: pairwise
+"""
+
+
+if hasattr(itertools, 'pairwise'):  # check if it exists in the builtin itertools module
+
+    class pairwise(_IterTool):
+        _wrapped = itertools.pairwise
+
+        def __init__(self, iterable: t.Iterable):
+            self.iterable = iterable
+            super().__init__(self.iterable)
+
+        def __len__(self) -> int:
+            return len(self.iterable) - 1
+
+
+
+__doc__ += """
 Slicing
 -------
 The following function slices iterables like :func:`slice`, but lazily.
