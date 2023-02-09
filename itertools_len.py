@@ -210,7 +210,7 @@ available starting from this Python version.
 """
 
 
-if hasattr(itertools, 'pairwise'):  # check if it exists in the builtin itertools module
+if hasattr(itertools, "pairwise"):  # check if it exists in the builtin itertools module
 
     class pairwise(_IterTool):
         _wrapped = itertools.pairwise
@@ -221,7 +221,6 @@ if hasattr(itertools, 'pairwise'):  # check if it exists in the builtin itertool
 
         def __len__(self) -> int:
             return len(self.iterable) - 1
-
 
 
 __doc__ += """
