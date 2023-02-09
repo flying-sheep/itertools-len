@@ -4,7 +4,7 @@ authors = [{ name = 'Philipp A.', email = 'flying-sheep@web.de' }]
 urls.Source = 'https://github.com/flying-sheep/itertools-len'
 urls.Documentation = 'https://itertools-len.readthedocs.io/'
 readme = 'README.rst'
-license = 'GPL-3.0+'
+license = 'GPL-3.0-or-later'
 classifiers = [
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
