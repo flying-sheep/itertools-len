@@ -47,3 +47,19 @@ skip_install = true
 
 [tool.black]
 target-version = ['py36']
+
+[tool.ruff]
+select = [
+    # Pyflakes
+    'F',
+    # Pycodestyle
+    'E',
+    'W',
+    # isort
+    'I001'
+]
+ignore = [
+  # Ambiguous variable/class/… name
+  'E74',
+]
+src = ['src', 'tests']
