@@ -15,19 +15,20 @@ classifiers = [
     'Intended Audience :: Developers',
     'Programming Language :: Python :: 3',
 ]
-requires-python = '>= 3.6'
+requires-python = '>= 3.8'
 requires = ['get_version']
 
 [tool.flit.metadata.requires-extra]
 test = ['pytest', 'black']
+docs = ['sphinx', 'sphinx-rtd-theme']
 
 [tool.flit.metadata.urls]
-Documentation = "https://itertools-len.readthedocs.io/"
+Documentation = 'https://itertools-len.readthedocs.io/'
 
 [tool.tox]
-legacy_tox_ini = """
+legacy_tox_ini = '''
 [tox]
-envlist = py36, py37, py38, static
+envlist = py3.8, py3.9, py3.10, static
 skip_missing_interpreters = true
 isolated_build = true
 
@@ -43,10 +44,10 @@ commands =
     black . --check --diff
     rst2html.py --halt=2 README.rst >/dev/null
 skip_install = true
-"""
+'''
 
 [tool.black]
-target-version = ['py36']
+target-version = ['py3.8']
 
 [tool.ruff]
 select = [
