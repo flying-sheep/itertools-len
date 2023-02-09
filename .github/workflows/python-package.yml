@@ -32,4 +32,5 @@ jobs:
         python -m pip install .[test] codecov pytest-cov
     - name: Test with pytest
       run: pytest -v --cov=. --cov-report=xml
-    - run: codecov -t codecov ${{ secrets.CODECOV_TOKEN }}
+    - name: Upload coverage
+      run: codecov -t ${{ secrets.CODECOV_TOKEN }}
