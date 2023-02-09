@@ -90,7 +90,7 @@ Therefore no length can be determined and they are simply re-exported.
 
 
 compress = itertools.compress
-dropwhile = itertools.combinations
+dropwhile = itertools.dropwhile
 filterfalse = itertools.filterfalse
 groupby = itertools.groupby
 takewhile = itertools.takewhile
