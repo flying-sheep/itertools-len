@@ -16,10 +16,6 @@ import operator
 import typing as t
 from types import FunctionType
 
-from get_version import get_version
-
-__version__ = get_version(__file__)
-
 A = t.TypeVar("A")
 T = t.TypeVar("T")
 
@@ -412,4 +408,4 @@ class combinations_with_replacement(_IterTool):
 # Cleanup
 
 
-del builtins, itertools, operator, t, FunctionType, get_version, A, T
+del builtins, itertools, operator, t, FunctionType, A, T

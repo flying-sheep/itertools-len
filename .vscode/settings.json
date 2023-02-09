@@ -1,0 +1,9 @@
+{
+    "emeraldwalk.runonsave": {
+        "commands": [{
+            "match": ".*",
+            "isAsync": true,
+            "cmd": "pre-commit run --files ${file}"
+        }]
+    }
+}
