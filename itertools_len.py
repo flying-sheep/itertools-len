@@ -10,8 +10,8 @@ and the builtin :func:`map`. To use it as drop-in replacement, do:
    from itertools_len import map
 """
 
-import itertools
 import builtins
+import itertools
 import operator
 import typing as t
 from types import FunctionType
@@ -343,7 +343,7 @@ class product(_IterTool):
         length = 1
         for seq in self.sequences:
             length *= len(seq)
-        return length ** self.repeat
+        return length**self.repeat
 
 
 class permutations(_IterTool):
