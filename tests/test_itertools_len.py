@@ -1,8 +1,7 @@
 import itertools
 
-import pytest
-
 import itertools_len
+import pytest
 
 
 def exports(mod):
