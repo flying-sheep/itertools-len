@@ -1,29 +1,25 @@
-[build-system]
-requires = ['flit']
-build-backend = 'flit.buildapi'
-
-[tool.flit.metadata]
-dist-name = 'itertools-len'
-module = 'itertools_len'
-author = 'Philipp A.'
-author-email = 'flying-sheep@web.de'
-home-page = 'https://github.com/flying-sheep/itertools-len'
-description-file = 'README.rst'
+[project]
+name = 'itertools-len'
+authors = [{ name = 'Philipp A.', email = 'flying-sheep@web.de' }]
+urls.Source = 'https://github.com/flying-sheep/itertools-len'
+urls.Documentation = 'https://itertools-len.readthedocs.io/'
+readme = 'README.rst'
+license = 'GPL-3.0-or-later'
 classifiers = [
-    'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
     'Programming Language :: Python :: 3',
 ]
 requires-python = '>= 3.8'
-requires = ['get_version']
+dependencies = ['get_version']
+dynamic = ['version']
 
-[tool.flit.metadata.requires-extra]
+[project.optional-dependencies]
 test = ['pytest', 'black']
 docs = ['sphinx', 'sphinx-rtd-theme']
 
-[tool.flit.metadata.urls]
-Documentation = 'https://itertools-len.readthedocs.io/'
+[tool.hatch.version]
+source = 'vcs'
 
 [tool.tox]
 legacy_tox_ini = '''
@@ -64,3 +60,7 @@ ignore = [
   'E74',
 ]
 src = ['src', 'tests']
+
+[build-system]
+requires = ['hatchling', 'hatch-vcs']
+build-backend = 'hatchling.build'
