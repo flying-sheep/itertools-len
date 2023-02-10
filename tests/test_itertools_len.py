@@ -1,10 +1,14 @@
 import itertools
 
-import itertools_len
 import pytest
+
+import itertools_len
 
 
 def exports(mod):
+    if (explicit := getattr(mod, "__all__", None)) is not None:
+        yield from explicit
+        return
     for n in dir(mod):
         if not n.startswith("_"):
             yield n
