@@ -29,7 +29,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip wheel pytest-cov
-        pip install -e .[test]
+        pip install -e .[test,speedups]
     - name: Test with pytest
       run: pytest -v --cov=src --cov-report=xml --color=yes
     - uses: codecov/codecov-action@v3

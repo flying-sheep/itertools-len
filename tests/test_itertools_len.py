@@ -1,4 +1,5 @@
 import itertools
+from importlib.util import find_spec
 
 import pytest
 
@@ -163,6 +164,18 @@ def test_permutations_subset(reps):
 
 abcd = "ABCD"
 abcd_combinations = ["AB", "AC", "AD", "BC", "BD", "CD"]
+
+
+@pytest.mark.skipif(not find_spec("scipy"), reason="`scipy` not installed")
+@pytest.mark.parametrize(
+    "n,r, expected",
+    [
+        (len(abcd), 2, len(abcd_combinations)),
+    ],
+)
+def test_ncomb(n, r, expected):
+    assert itertools_len._ncomb_python(n, r) == expected
+    assert itertools_len._ncomb_scipy(n, r) == expected
 
 
 def test_combinations():

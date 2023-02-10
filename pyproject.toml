@@ -15,6 +15,7 @@ dependencies = ['get_version']
 dynamic = ['version']
 
 [project.optional-dependencies]
+speedups = ['scipy']
 test = ['pytest', 'pytest-cov']
 docs = ['sphinx', 'sphinx-rtd-theme']
 

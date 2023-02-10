@@ -369,20 +369,26 @@ class permutations(_IterTool):
         return factorial(n) // factorial(n - self.r)
 
 
-def _ncomb(n: int, r: int) -> int:
-    try:
-        from scipy.special import comb
-    except ImportError:
-        pass
-    else:
-        return comb(n, r, exact=True)
-
+def _ncomb_python(n: int, r: int) -> int:
     ncomb = 1
     for i in range(1, min(r, n - r) + 1):
         ncomb *= n
         ncomb //= i
         n -= 1
     return ncomb
+
+
+def _ncomb_scipy(n: int, r: int) -> int:
+    from scipy.special import comb
+
+    return comb(n, r, exact=True)
+
+
+def _ncomb(n: int, r: int) -> int:
+    try:
+        return _ncomb_scipy(n, r)
+    except ImportError:  # pragma: no cover
+        return _ncomb_python(n, r)
 
 
 class combinations(_IterTool):
