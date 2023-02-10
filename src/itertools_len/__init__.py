@@ -69,7 +69,7 @@ class repeat(_IterTool):
     _wrapped = itertools.repeat
 
     def __init__(self, object: T, times: t.Optional[int] = None):
-        super().__init__(object, times)
+        super().__init__(object, *([] if times is None else [times]))
         self.times = times
 
     def __len__(self) -> int:

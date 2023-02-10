@@ -6,6 +6,10 @@ import pytest
 import itertools_len
 
 
+abcd = "ABCD"
+abcd_combinations = ["AB", "AC", "AD", "BC", "BD", "CD"]
+
+
 has_pairwise = pytest.mark.skipif(
     not hasattr(itertools, "pairwise"), reason="`pairwise` not available"
 )
@@ -39,11 +43,11 @@ def test_wrap_doc(func_name, suffix):
 
 @pytest.mark.parametrize("times", [0, 1, 20, None])
 def test_repeat(times):
+    s = itertools_len.repeat("x", times)
     if times is None:
         with pytest.raises(TypeError):
-            itertools_len.repeat("x", times)
+            len(s)
     else:
-        s = itertools_len.repeat("x", times)
         assert len(s) == times
 
 
@@ -141,8 +145,8 @@ def test_product_multiple():
 
 @pytest.mark.parametrize("reps", [1, 2, 3])
 def test_product_rep(reps):
-    expected = list(itertools.product("ABCD", repeat=reps))
-    prod = itertools_len.product("ABCD", repeat=reps)
+    expected = list(itertools.product(abcd, repeat=reps))
+    prod = itertools_len.product(abcd, repeat=reps)
     assert len(expected) == len(prod)
     assert expected == list(prod)
 
@@ -156,14 +160,10 @@ def test_permutations_all():
 
 @pytest.mark.parametrize("reps", [1, 2, 3])
 def test_permutations_subset(reps):
-    expected = list(itertools.permutations("ABCD", reps))
-    perms = itertools_len.permutations("ABCD", reps)
+    expected = list(itertools.permutations(abcd, reps))
+    perms = itertools_len.permutations(abcd, reps)
     assert len(expected) == len(perms)
     assert expected == list(perms)
-
-
-abcd = "ABCD"
-abcd_combinations = ["AB", "AC", "AD", "BC", "BD", "CD"]
 
 
 @pytest.mark.skipif(not find_spec("scipy"), reason="`scipy` not installed")
