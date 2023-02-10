@@ -2,7 +2,7 @@ r"""
 Building blocks for iterators, preserving their :func:`len`\ s.
 
 This module contains length-preserving wrappers for all :mod:`itertools`
-and the builtin :func:`map`. To use it as drop-in replacement, do:
+and the builtin :func:`python:map`. To use it as drop-in replacement, do:
 
 .. code:: python
 
@@ -36,7 +36,7 @@ class _WrapDocMeta(type):
             if " --> " not in line and " -> " not in line
         )
         typ = "meth" if "." in cls._wrapped.__qualname__ else "func"
-        prefix = "" if cls is map else "itertools."
+        prefix = "python:" if cls is map else "itertools."
         return f"{patched.strip()} Wraps :{typ}:`{prefix}{cls._wrapped.__qualname__}`."
 
 
