@@ -106,11 +106,17 @@ def test_pairwise(n_items, n_pairs):
         slice(0, 20),
     ],
 )
-@pytest.mark.parametrize("stop_missing", [True, False])
-def test_islice(sl, stop_missing):
+def test_islice(sl):
     l = list(range(10))
-    stop = itertools_len._missing if stop_missing and sl.stop is None else sl.stop
-    isl = itertools_len.islice(l, sl.start, stop, sl.step)
+    isl = itertools_len.islice(l, sl.start, sl.stop, sl.step)
+    assert len(l[sl]) == len(isl)
+    assert l[sl] == list(isl)
+
+
+def test_islice_kw():
+    l = list(range(10))
+    sl = slice(0, 6, 2)
+    isl = itertools_len.islice(l, 6, step=2)
     assert len(l[sl]) == len(isl)
     assert l[sl] == list(isl)
 
