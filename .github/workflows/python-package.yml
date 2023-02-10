@@ -28,8 +28,8 @@ jobs:
         cache-dependency-path: pyproject.toml
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip wheel
-        python -m pip install .[test] pytest-cov
+        pip install --upgrade pip wheel pytest-cov
+        pip install -e .[test]
     - name: Test with pytest
       run: pytest -v --cov=src --cov-report=xml --color=yes
     - uses: codecov/codecov-action@v3
