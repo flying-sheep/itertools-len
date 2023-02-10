@@ -1,6 +1,7 @@
 itertools-len
 =============
 
+.. currentmodule:: itertools_len
 .. automodule:: itertools_len
 
 .. raw:: html

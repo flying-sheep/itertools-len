@@ -17,7 +17,7 @@ dynamic = ['version']
 [project.optional-dependencies]
 speedups = ['scipy']
 test = ['pytest', 'pytest-cov']
-docs = ['sphinx', 'sphinx-rtd-theme']
+docs = ['sphinx', 'furo']
 
 [tool.hatch.version]
 source = 'vcs'
