@@ -31,6 +31,6 @@ jobs:
         python -m pip install --upgrade pip wheel
         python -m pip install .[test] codecov pytest-cov
     - name: Test with pytest
-      run: pytest -v --cov=src --cov-report=xml
+      run: pytest -v --cov=src --cov-report=xml --color=yes
     - name: Upload coverage
-      run: codecov -t ${{ secrets.CODECOV_TOKEN }}
+      run: codecov -t ${{ secrets.CODECOV_TOKEN }} --required --flags=unittests
