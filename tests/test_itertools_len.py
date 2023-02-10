@@ -47,6 +47,21 @@ def test_repeat(times):
 
 
 @pytest.mark.parametrize(
+    "func_name,expected,args",
+    [
+        ("accumulate", 2, ([1, 2],)),
+        ("starmap", 3, (int, [["1"], ["2"], ["11", 2]])),
+        ("map", 3, (int, ["1", "2", "11"])),
+        ("zip_longest", 2, ([1, 2], [3])),
+    ],
+)
+def test_maps(func_name, expected, args):
+    func = getattr(itertools_len, func_name)
+    res = func(*args)
+    assert len(res) == len(list(res)) == expected
+
+
+@pytest.mark.parametrize(
     "slice",
     [
         # Only stop
