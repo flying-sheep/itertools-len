@@ -52,7 +52,7 @@ def test_repeat(times):
         ("accumulate", 2, ([1, 2],)),
         ("starmap", 3, (int, [["1"], ["2"], ["11", 2]])),
         ("map", 3, (int, ["1", "2", "11"])),
-        ("zip_longest", 2, ([1, 2], [3])),
+        ("zip_longest", 3, ([1, 2, 3], [3])),
     ],
 )
 def test_maps(func_name, expected, args):
