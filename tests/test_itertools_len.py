@@ -5,6 +5,11 @@ import pytest
 import itertools_len
 
 
+has_pairwise = pytest.mark.skipif(
+    not hasattr(itertools, "pairwise"), reason="`pairwise` not available"
+)
+
+
 def exports(mod):
     if (explicit := getattr(mod, "__all__", None)) is not None:
         yield from explicit
@@ -16,6 +21,19 @@ def exports(mod):
 
 def test_all_available():
     assert set(exports(itertools)) | {"map"} == set(exports(itertools_len))
+
+
+@pytest.mark.parametrize(
+    "func_name,suffix",
+    [
+        ("repeat", "endlessly"),
+        pytest.param("pairwise", "taken from the input iterator", marks=has_pairwise),
+        ("islice", "but returns an iterator"),
+    ],
+)
+def test_wrap_doc(func_name, suffix):
+    func = getattr(itertools_len, func_name)
+    assert f"{suffix}. Wraps" in func.__doc__
 
 
 @pytest.mark.parametrize(
