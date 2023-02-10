@@ -121,6 +121,17 @@ def test_islice_kw():
     assert l[sl] == list(isl)
 
 
+@pytest.mark.parametrize("n", range(1, 4))
+def test_tee(n):
+    r = range(10)
+    its = itertools_len.tee(r, n)
+    assert len(its) == n
+    assert len(its[0]) == 10
+    assert list(reversed(its))[0] == its[-1]
+    assert [len(it) for it in its] == [10] * n
+    assert [list(it) for it in its] == [list(r) for _ in range(n)]
+
+
 def test_product_multiple():
     prod = itertools_len.product("ab", [1, 2])
     assert len(prod) == 4

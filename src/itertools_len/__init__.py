@@ -312,7 +312,7 @@ class tee(metaclass=_WrapDocMeta):
     def __reversed__(self) -> t.Iterator[_tee]:
         return reversed(self.itertools)
 
-    def len(self) -> int:
+    def __len__(self) -> int:
         """Number of iterators returned"""
         return len(self.itertools)
 
