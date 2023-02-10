@@ -16,6 +16,9 @@ import operator
 import typing as t
 from types import FunctionType
 
+
+__all__ = [*(n for n in dir(itertools) if not n.startswith("_")), "map"]
+
 A = t.TypeVar("A")
 T = t.TypeVar("T")
 
@@ -403,9 +406,3 @@ class combinations_with_replacement(_IterTool):
 
     def __len__(self) -> int:
         return _ncomb(self.r + len(self.elements) - 1, self.r)
-
-
-# Cleanup
-
-
-del builtins, itertools, operator, t, FunctionType, A, T

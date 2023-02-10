@@ -5,5 +5,7 @@
             "isAsync": true,
             "cmd": "pre-commit run --files ${file}"
         }]
-    }
+    },
+    "python.analysis.extraPaths": ["src"],
+    "python.testing.pytestEnabled": true,
 }

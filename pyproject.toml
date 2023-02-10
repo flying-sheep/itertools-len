@@ -45,6 +45,9 @@ skip_install = true
 [tool.black]
 target-version = ['py38']
 
+[tool.ruff.isort]
+lines-after-imports = 2
+
 [tool.ruff]
 select = [
     # Pyflakes
