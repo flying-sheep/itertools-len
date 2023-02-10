@@ -34,7 +34,7 @@ class _WrapDocMeta(type):
         patched = "\n".join(
             line
             for line in getdoc(cls._wrapped).splitlines()
-            if ") --> " not in line and "->" not in line
+            if " --> " not in line and " -> " not in line
         )
         typ = "meth" if "." in cls._wrapped.__qualname__ else "func"
         prefix = "" if cls is map else "itertools."
