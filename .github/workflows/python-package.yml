@@ -29,10 +29,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip wheel
-        python -m pip install .[test] codecov pytest-cov
+        python -m pip install .[test] pytest-cov
     - name: Test with pytest
       run: pytest -v --cov=src --cov-report=xml --color=yes
-    - name: Upload coverage
-      env:
-        CODECOV_NAME: ${{ matrix.python-version }}
-      run: codecov -t ${{ secrets.CODECOV_TOKEN }} --required --flags=unittests
+    - uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        flags: unittests
+        name: ${{ matrix.python-version }}
