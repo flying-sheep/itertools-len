@@ -74,17 +74,14 @@ def test_chain(func, iterables):
 
 
 @has_pairwise
-@pytest.mark.parametrize(
-    "n_items,n_pairs",
-    [(0, 0), (1, 0), (2, 1), (3, 2), (20, 19)],
-)
+@pytest.mark.parametrize("n_items,n_pairs", [(0, 0), (1, 0), (2, 1), (3, 2), (20, 19)])
 def test_pairwise(n_items, n_pairs):
     pairs = itertools_len.pairwise(range(n_items))
     assert len(pairs) == n_pairs
 
 
 @pytest.mark.parametrize(
-    "slice",
+    "sl",
     [
         # Only stop
         slice(None),
@@ -98,22 +95,24 @@ def test_pairwise(n_items, n_pairs):
         slice(0, 4),
         slice(2, 4),
         slice(2, 8),
-        # Start, Stop & step
+        # Start, Stop & Step
         slice(0, 1, 2),
         slice(0, 5, 2),
         slice(0, 5, 5),
-        # Start & step
+        # Stop & Step
         slice(0, None, 2),
         slice(0, None, 3),
         # stop > len
         slice(0, 20),
     ],
 )
-def test_islice(slice):
+@pytest.mark.parametrize("stop_missing", [True, False])
+def test_islice(sl, stop_missing):
     l = list(range(10))
-    s = itertools_len.islice(l, slice.start, slice.stop, slice.step)
-    assert len(l[slice]) == len(s)
-    assert l[slice] == list(s)
+    stop = itertools_len._missing if stop_missing and sl.stop is None else sl.stop
+    isl = itertools_len.islice(l, sl.start, stop, sl.step)
+    assert len(l[sl]) == len(isl)
+    assert l[sl] == list(isl)
 
 
 def test_product_multiple():
