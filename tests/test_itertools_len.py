@@ -62,6 +62,18 @@ def test_maps(func_name, expected, args):
 
 
 @pytest.mark.parametrize(
+    "func,iterables",
+    [
+        (itertools_len.chain, [[1, 2], [3, 4, 5]]),
+        (itertools_len.chain.from_iterable, ["abc", "def"]),
+    ],
+)
+def test_chain(func, iterables):
+    res = func(*iterables) if func is itertools_len.chain else func(iterables)
+    assert len(res) == sum(len(i) for i in iterables)
+
+
+@pytest.mark.parametrize(
     "slice",
     [
         # Only stop
