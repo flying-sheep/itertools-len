@@ -33,4 +33,6 @@ jobs:
     - name: Test with pytest
       run: pytest -v --cov=src --cov-report=xml --color=yes
     - name: Upload coverage
+      env:
+        CODECOV_NAME: ${{ matrix.python-version }}
       run: codecov -t ${{ secrets.CODECOV_TOKEN }} --required --flags=unittests
