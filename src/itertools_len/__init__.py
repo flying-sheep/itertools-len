@@ -32,9 +32,10 @@ class _WrapDocMeta(type):
         from inspect import getdoc
 
         patched = "\n".join(
-            line for line in getdoc(cls._wrapped).splitlines() if ") --> " not in line
+            line
+            for line in getdoc(cls._wrapped).splitlines()
+            if ") --> " not in line and "->" not in line
         )
-        patched = patched.replace("repeat(object [,times]) -> ", "")
         typ = "meth" if "." in cls._wrapped.__qualname__ else "func"
         prefix = "" if cls is map else "itertools."
         return f"{patched.strip()} Wraps :{typ}:`{prefix}{cls._wrapped.__qualname__}`."
