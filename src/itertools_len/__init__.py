@@ -125,7 +125,7 @@ class _Adder:
         a + b
 
     def __repr__(self) -> str:
-        return "add"  # pragma nocover
+        return "add"  # pragma: no cover
 
 
 class accumulate(_IterToolMap):
@@ -242,7 +242,7 @@ The following function slices iterables like :func:`slice`, but lazily.
 
 class _Missing:
     def __repr__(self) -> str:
-        return "missing"
+        return "missing"  # pragma: no cover
 
 
 _missing = _Missing()
