@@ -159,3 +159,17 @@ def test_permutations_subset(reps):
     perms = itertools_len.permutations("ABCD", reps)
     assert len(expected) == len(perms)
     assert expected == list(perms)
+
+
+abcd = "ABCD"
+abcd_combinations = ["AB", "AC", "AD", "BC", "BD", "CD"]
+
+
+def test_combinations():
+    cmbs = itertools_len.combinations(abcd, 2)
+    assert len(cmbs) == len(abcd_combinations)
+
+
+def test_combinations_combinations_with_replacement():
+    cmbs = itertools_len.combinations_with_replacement(abcd, 2)
+    assert len(cmbs) == len(abcd_combinations) + len(abcd)
