@@ -69,7 +69,7 @@ class repeat(_IterTool):
     _wrapped = itertools.repeat
 
     def __init__(self, object: T, times: t.Optional[int] = None):
-        super().__init__(object, times)
+        super().__init__(object, *([] if times is None else [times]))
         self.times = times
 
     def __len__(self) -> int:
@@ -220,7 +220,8 @@ if hasattr(itertools, "pairwise"):  # check if it exists in the builtin itertool
             super().__init__(self.iterable)
 
         def __len__(self) -> int:
-            return len(self.iterable) - 1
+            l = len(self.iterable)
+            return l - 1 if l > 0 else 0
 
 
 __doc__ += """
@@ -311,7 +312,7 @@ class tee(metaclass=_WrapDocMeta):
     def __reversed__(self) -> t.Iterator[_tee]:
         return reversed(self.itertools)
 
-    def len(self) -> int:
+    def __len__(self) -> int:
         """Number of iterators returned"""
         return len(self.itertools)
 
@@ -368,20 +369,26 @@ class permutations(_IterTool):
         return factorial(n) // factorial(n - self.r)
 
 
-def _ncomb(n: int, r: int) -> int:
-    try:
-        from scipy.special import comb
-    except ImportError:
-        pass
-    else:
-        return comb(n, r, exact=True)
-
+def _ncomb_python(n: int, r: int) -> int:
     ncomb = 1
     for i in range(1, min(r, n - r) + 1):
         ncomb *= n
         ncomb //= i
         n -= 1
     return ncomb
+
+
+def _ncomb_scipy(n: int, r: int) -> int:
+    from scipy.special import comb
+
+    return comb(n, r, exact=True)
+
+
+def _ncomb(n: int, r: int) -> int:
+    try:
+        return _ncomb_scipy(n, r)
+    except ImportError:  # pragma: no cover
+        return _ncomb_python(n, r)
 
 
 class combinations(_IterTool):

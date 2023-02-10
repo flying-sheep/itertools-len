@@ -15,7 +15,8 @@ dependencies = ['get_version']
 dynamic = ['version']
 
 [project.optional-dependencies]
-test = ['pytest', 'black']
+speedups = ['scipy']
+test = ['pytest', 'pytest-cov']
 docs = ['sphinx', 'sphinx-rtd-theme']
 
 [tool.hatch.version]
