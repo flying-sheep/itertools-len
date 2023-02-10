@@ -220,7 +220,8 @@ if hasattr(itertools, "pairwise"):  # check if it exists in the builtin itertool
             super().__init__(self.iterable)
 
         def __len__(self) -> int:
-            return len(self.iterable) - 1
+            l = len(self.iterable)
+            return l - 1 if l > 0 else 0
 
 
 __doc__ += """

@@ -73,6 +73,16 @@ def test_chain(func, iterables):
     assert len(res) == sum(len(i) for i in iterables)
 
 
+@has_pairwise
+@pytest.mark.parametrize(
+    "n_items,n_pairs",
+    [(0, 0), (1, 0), (2, 1), (3, 2), (20, 19)],
+)
+def test_pairwise(n_items, n_pairs):
+    pairs = itertools_len.pairwise(range(n_items))
+    assert len(pairs) == n_pairs
+
+
 @pytest.mark.parametrize(
     "slice",
     [
