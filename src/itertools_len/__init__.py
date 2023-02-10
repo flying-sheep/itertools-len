@@ -12,7 +12,6 @@ and the builtin :func:`map`. To use it as drop-in replacement, do:
 
 import builtins
 import itertools
-import operator
 import typing as t
 from types import FunctionType
 
@@ -119,12 +118,20 @@ class _IterToolMap(_IterTool):
         return len(self.iterable)
 
 
+class _Adder:
+    """This just exists to allow Sphinx to parse the function signature."""
+
+    def __call__(self, a: A, b: A) -> T:
+        a + b
+
+    def __repr__(self) -> str:
+        return "add"  # pragma nocover
+
+
 class accumulate(_IterToolMap):
     _wrapped = itertools.accumulate
 
-    def __init__(
-        self, iterable: t.Iterable[A], func: t.Callable[[A, A], T] = operator.add
-    ):
+    def __init__(self, iterable: t.Iterable[A], func: t.Callable[[A, A], T] = _Adder()):
         super().__init__(iterable, iterable, func=func)
 
 
@@ -234,7 +241,8 @@ The following function slices iterables like :func:`slice`, but lazily.
 
 
 class _Missing:
-    pass
+    def __repr__(self) -> str:
+        return "missing"
 
 
 _missing = _Missing()
@@ -355,14 +363,7 @@ class permutations(_IterTool):
         super().__init__(self.elements, r)
 
     def __len__(self) -> int:
-        """
-        The number of r-permutations of n elements [Uspensky37]_.
-
-        .. [Uspensky37] Uspensky et al. (1937),
-           *Introduction To Mathematical Probability* p. 18,
-           `Mcgraw-hill Book Company London
-           <https://archive.org/details/in.ernet.dli.2015.263184/page/n8>`.
-        """
+        """The number of r-permutations of n elements [Uspensky37]_."""
         from math import factorial
 
         n = len(self.elements)
@@ -414,3 +415,14 @@ class combinations_with_replacement(_IterTool):
 
     def __len__(self) -> int:
         return _ncomb(self.r + len(self.elements) - 1, self.r)
+
+
+__doc__ += """
+References
+----------
+
+.. [Uspensky37] Uspensky et al. (1937),
+   *Introduction To Mathematical Probability* p. 18,
+   `Mcgraw-hill Book Company London
+   <https://archive.org/details/in.ernet.dli.2015.263184/page/n8>`__.
+"""
