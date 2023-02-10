@@ -36,6 +36,16 @@ def test_wrap_doc(func_name, suffix):
     assert f"{suffix}. Wraps" in func.__doc__
 
 
+@pytest.mark.parametrize("times", [0, 1, 20, None])
+def test_repeat(times):
+    if times is None:
+        with pytest.raises(TypeError):
+            itertools_len.repeat("x", times)
+    else:
+        s = itertools_len.repeat("x", times)
+        assert len(s) == times
+
+
 @pytest.mark.parametrize(
     "slice",
     [
