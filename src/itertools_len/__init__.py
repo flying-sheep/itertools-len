@@ -81,7 +81,7 @@ class repeat(_IterTool):
 __doc__ += """
 Shortening/filtering
 --------------------
-:func:`~itertools.compress`, :func:`~itertools.combinations`,
+:func:`~itertools.compress`, :func:`~itertools.dropwhile`,
 :func:`~itertools.filterfalse`, :func:`~itertools.groupby`, and
 :func:`~itertools.takewhile` all shorten the passed iterable.
 Therefore no length can be determined and they are simply re-exported.
