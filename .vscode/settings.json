@@ -1,12 +1,12 @@
 {
-    "emeraldwalk.runonsave": {
-        "commands": [{
-            "match": ".*",
-            "isAsync": true,
-            "cmd": "pre-commit run --files ${file}"
-        }]
-    },
-    "python.analysis.extraPaths": ["src"],
     "python.testing.pytestEnabled": true,
-    "python.testing.pytestArgs": ["--cov=src", "--cov-report=xml"],
+    "python.testing.pytestArgs": ["--color=yes"],
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true,
+            "source.organizeImports": true,
+        }
+    }
 }

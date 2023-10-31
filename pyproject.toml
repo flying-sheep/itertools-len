@@ -9,8 +9,9 @@ classifiers = [
     'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Developers',
     'Programming Language :: Python :: 3',
+    'Typing :: Typed',
 ]
-requires-python = '>= 3.8'
+requires-python = '>= 3.9'
 dependencies = ['get_version']
 dynamic = ['version']
 
@@ -22,29 +23,13 @@ docs = ['sphinx', 'furo']
 [tool.hatch.version]
 source = 'vcs'
 
-[tool.tox]
-legacy_tox_ini = '''
-[tox]
-envlist = py3.8, py3.9, py3.10, static
-skip_missing_interpreters = true
-isolated_build = true
-
-[testenv]
-extras = test
-commands = python -m pytest {posargs}
-
-[testenv:static]
-deps =
-    black
-    docutils
-commands =
-    black . --check --diff
-    rst2html.py --halt=2 README.rst >/dev/null
-skip_install = true
-'''
-
-[tool.black]
-target-version = ['py38']
+[tool.hatch.envs.test]
+features = ['test', 'speedups']
+[[tool.hatch.envs.test.matrix]]
+python = ['3.9', '3.10', '3.11', '3.12']
+[tool.hatch.envs.test.scripts]
+run = 'pytest -vv {args}'
+cov = 'pytest -vv --cov-report=term-missing --cov=src {args}'
 
 [tool.ruff.isort]
 lines-after-imports = 2
