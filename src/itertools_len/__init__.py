@@ -51,12 +51,12 @@ class _WrapDocMeta(type):
 
 
 class _IterTool(metaclass=_WrapDocMeta):
-    _wrapped: ClassVar[Callable[C, Iterable[A]]]
+    _wrapped: ClassVar[Callable[C, Iterable[T]]]
 
     def __init__(self, *args: C.args, **kwargs: C.kwargs) -> None:
         self.itertool = self._wrapped(*args, **kwargs)
 
-    def __iter__(self) -> Iterator[A]:
+    def __iter__(self) -> Iterator[T]:
         return iter(self.itertool)
 
 
