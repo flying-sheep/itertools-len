@@ -35,20 +35,29 @@ cov = 'pytest -vv --cov-report=term-missing --cov=src {args}'
 lines-after-imports = 2
 
 [tool.ruff]
-select = [
-    # Pyflakes
-    'F',
-    # Pycodestyle
-    'E',
-    'W',
-    # isort
-    'I001'
-]
+select = ['ALL']
 ignore = [
-  # Ambiguous variable/class/… name
-  'E74',
+  'Q',      # Quotes covered by formatter
+  'ANN101', # Don’t type-annotate self
+  'C408',   # dict() calls are fine
+  'E74',    # Ambiguous variable/class/… name
+  'FIX002', # TODOs are OK
+  'D203',   # No blank line before class body
+  'D212',   # Multi-line docstring summary should start at the first line
+  'N801',   # We mirror itertools which uses lowercase class names
+  'TD002',  # No TODO names
 ]
 src = ['src', 'tests']
+allowed-confusables = ['×', '’']
+[tool.ruff.extend-per-file-ignores]
+'docs/*' = ['INP001'] # No __init__.py in docs
+'tests/*' = [
+    'D103',    # No docstrings necessary
+    'INP001',  # No __init__.py in tests
+    'PLR2004', # Magic values in tests are fine
+    'S101',    # Pytest prefers assert
+    'SLF001',  # Private access in test is file
+]
 
 [build-system]
 requires = ['hatchling', 'hatch-vcs']
