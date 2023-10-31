@@ -16,7 +16,13 @@ import builtins
 import itertools
 import sys
 from math import ceil
-from typing import TYPE_CHECKING, Any, ClassVar, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
+
+
+try:
+    from typing import ParamSpec
+except ImportError:
+    from typing_extensions import ParamSpec
 
 
 if TYPE_CHECKING:
