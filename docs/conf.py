@@ -1,10 +1,12 @@
+"""Sphinx config."""
+
 import sys
 
 
 sys.path.insert(0, "../src")
 
 project = "itertools-len"
-copyright = "2020, Philipp A."
+copyright = "2020, Philipp A."  # noqa: A001
 author = "Philipp A."
 language = "en"
 

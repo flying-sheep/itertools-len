@@ -10,24 +10,40 @@ and the builtin :func:`python:map`. To use it as drop-in replacement, do:
    from itertools_len import map
 """
 
+from __future__ import annotations
+
 import builtins
 import itertools
-import typing as t
-from types import FunctionType
+import sys
+from math import ceil
+from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
 
 
-__all__ = [*(n for n in dir(itertools) if not n.startswith("_")), "map"]
+try:
+    from typing import ParamSpec
+except ImportError:
+    from typing_extensions import ParamSpec
 
-A = t.TypeVar("A")
-T = t.TypeVar("T")
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator
+    from types import FunctionType
+
+
+__all__ = []  # Filled below
+
+A = TypeVar("A")
+T = TypeVar("T")
+C = ParamSpec("C")
 
 
 class _WrapDocMeta(type):
-    _wrapped: t.Union[FunctionType, t.Type]
+    _wrapped: FunctionType | type
 
     @property
-    def __doc__(cls) -> str:
+    def __doc__(cls) -> str:  # noqa: A003
         # TODO: Allow overriding __doc__
+        # https://github.com/flying-sheep/itertools-len/issues/45
         from inspect import getdoc
 
         patched = "\n".join(
@@ -41,15 +57,16 @@ class _WrapDocMeta(type):
 
 
 class _IterTool(metaclass=_WrapDocMeta):
-    _wrapped: t.ClassVar[t.Callable]
+    _wrapped: ClassVar[Callable[C, Iterable[T]]]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: C.args, **kwargs: C.kwargs) -> None:
         self.itertool = self._wrapped(*args, **kwargs)
 
-    def __iter__(self) -> t.Iterator[T]:
+    def __iter__(self) -> Iterator[T]:
         return iter(self.itertool)
 
 
+__all__ += ["count", "cycle", "repeat"]
 __doc__ += """
 Infinites
 ---------
@@ -57,7 +74,7 @@ Infinites
 and are therefore simply re-exported. :func:`repeat` is finite if ``times`` is passed.
 
 .. autofunction:: repeat
-"""
+"""  # noqa: A001
 
 
 count = itertools.count
@@ -67,17 +84,19 @@ cycle = itertools.cycle
 class repeat(_IterTool):
     _wrapped = itertools.repeat
 
-    def __init__(self, object: T, times: t.Optional[int] = None):
-        super().__init__(object, *([] if times is None else [times]))
+    def __init__(self, obj: T, times: int | None = None) -> None:
+        super().__init__(obj, *([] if times is None else [times]))
         self.times = times
 
     def __len__(self) -> int:
-        """Returns how many repetitions are done unless it’s infinite"""
+        """Calculate how many repetitions are done unless it’s infinite."""
         if self.times is None:
-            raise TypeError("Infinite repeat")
+            msg = "Infinite repeat"
+            raise TypeError(msg)
         return self.times
 
 
+__all__ += ["compress", "dropwhile", "filterfalse", "groupby", "takewhile"]
 __doc__ += """
 Shortening/filtering
 --------------------
@@ -85,7 +104,7 @@ Shortening/filtering
 :func:`~itertools.filterfalse`, :func:`~itertools.groupby`, and
 :func:`~itertools.takewhile` all shorten the passed iterable.
 Therefore no length can be determined and they are simply re-exported.
-"""
+"""  # noqa: A001
 
 
 compress = itertools.compress
@@ -95,6 +114,7 @@ groupby = itertools.groupby
 takewhile = itertools.takewhile
 
 
+__all__ += ["accumulate", "starmap", "map", "zip_longest"]
 __doc__ += """
 Mapping
 -------
@@ -105,21 +125,30 @@ For inputs with a length, the output length is the same:
 .. autofunction:: starmap
 .. autofunction:: map
 .. autofunction:: zip_longest
-"""
+"""  # noqa: A001
 
 
 class _IterToolMap(_IterTool):
-    def __init__(self, iterable: t.Iterable[A], *args, **kwargs):
+    def __init__(
+        self,
+        iterable: Iterable[A],
+        *args: C.args,
+        **kwargs: C.kwargs,
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.iterable = iterable
 
     def __len__(self) -> int:
-        """If the underlying iterable is no sequence, this will raise an Error"""
+        """
+        Return length of underlying iterable unless it’s no sequence.
+
+        … in which case this will raise an Error.
+        """
         return len(self.iterable)
 
 
 class _Adder:
-    """This just exists to allow Sphinx to parse the function signature."""
+    """Helper class allowing Sphinx to parse the function signature."""
 
     def __call__(self, a: A, b: A) -> T:
         a + b
@@ -131,7 +160,11 @@ class _Adder:
 class accumulate(_IterToolMap):
     _wrapped = itertools.accumulate
 
-    def __init__(self, iterable: t.Iterable[A], func: t.Callable[[A, A], T] = _Adder()):
+    def __init__(
+        self,
+        iterable: Iterable[A],
+        func: Callable[[A, A], T] = _Adder(),  # noqa: B008
+    ) -> None:
         super().__init__(iterable, iterable, func=func)
 
 
@@ -139,20 +172,20 @@ class starmap(_IterToolMap):
     _wrapped = itertools.starmap
 
     # Can’t properly type this as Callable[ArgsTuple, T] doesn’t work.
-    def __init__(self, function: t.Callable[..., T], iterable: t.Iterable[t.Any]):
+    def __init__(self, function: Callable[..., T], iterable: Iterable[Any]) -> None:
         super().__init__(iterable, function, iterable)
 
 
-class map(_IterTool):
+class map(_IterTool):  # noqa: A001
     _wrapped = builtins.map
 
     # Similar as with starmap
-    def __init__(self, func: t.Callable[..., T], *iterables: t.Iterable[t.Any]):
+    def __init__(self, func: Callable[..., T], *iterables: Iterable[Any]) -> None:
         super().__init__(func, *iterables)
         self.iterables = iterables
 
     def __len__(self) -> int:
-        """The length of the shortest iterable"""
+        """Return length of the shortest iterable."""
         return min(len(iterable) for iterable in self.iterables)
 
 
@@ -160,16 +193,19 @@ class zip_longest(_IterTool):
     _wrapped = itertools.zip_longest
 
     def __init__(
-        self, *iterables: t.Iterable[t.Any], fillvalue: t.Optional[t.Any] = None
-    ):
+        self,
+        *iterables: Iterable[Any],
+        fillvalue: Any | None = None,  # noqa: ANN401
+    ) -> None:
         super().__init__(*iterables, fillvalue=fillvalue)
         self.iterables = iterables
 
     def __len__(self) -> int:
-        """The length of the longest iterable"""
+        """Return length of the longest iterable."""
         return max(len(iterable) for iterable in self.iterables)
 
 
+__all__ += ["chain"]
 __doc__ += """
 Chaining
 --------
@@ -178,15 +214,21 @@ Its length is therefore the sum of the inputs’ lengths.
 
 .. autofunction:: chain
 .. autofunction:: itertools_len::chain.from_iterable
-"""
+"""  # noqa: A001
 
 
 class _IterToolChain(_IterTool):
-    def __init__(self, iterables: t.Iterable[t.Iterable[T]], *args):
-        super().__init__(*args)
+    def __init__(
+        self,
+        iterables: Iterable[Iterable[T]],
+        *args: C.args,
+        **kw: C.kwargs,
+    ) -> None:
+        super().__init__(*args, **kw)
         self.iterables = iterables
 
     def __len__(self) -> int:
+        """Sum up the length of chained inputs."""
         # Make sure we don’t iterate over a generator or so
         len(self.iterables)
         return sum(map(len, self.iterables))
@@ -195,49 +237,77 @@ class _IterToolChain(_IterTool):
 class chain(_IterToolChain):
     _wrapped = itertools.chain
 
-    def __init__(self, *iterables: t.Iterable[T]):
+    def __init__(self, *iterables: Iterable[T]) -> None:
         super().__init__(iterables, *iterables)
 
-    class from_iterable(_IterToolChain):
+    class from_iterable(_IterToolChain):  # noqa: D106
         _wrapped = itertools.chain.from_iterable
 
-        def __init__(self, iterables: t.Iterable[t.Iterable[T]]):
+        def __init__(self, iterables: Iterable[Iterable[T]]) -> None:
             super().__init__(iterables, iterables)
 
 
-__doc__ += """
-Pairwise
---------
-The following function can loop over a sequence in pairs.
+if sys.version_info >= (3, 10):
+    __all__ += ["pairwise"]
+    __doc__ += """
+    Pairwise
+    --------
+    The following function can loop over a sequence in pairs.
 
-This method has been introduced in Python 3.10, so its length-aware equivalent is only
-available starting from this Python version.
+    This method has been introduced in Python 3.10, so its length-aware equivalent
+    is only available starting from this Python version.
 
-.. autofunction:: pairwise
-"""
-
-
-if hasattr(itertools, "pairwise"):  # check if it exists in the builtin itertools module
+    .. autofunction:: pairwise
+    """  # noqa: A001
 
     class pairwise(_IterTool):
         _wrapped = itertools.pairwise
 
-        def __init__(self, iterable: t.Iterable):
+        def __init__(self, iterable: Iterable[T]) -> None:
             self.iterable = iterable
             super().__init__(self.iterable)
 
         def __len__(self) -> int:
+            """Calculate the number of pairs: max(len-1, 0)."""
             l = len(self.iterable)
             return l - 1 if l > 0 else 0
 
 
+if sys.version_info >= (3, 12):
+    __all__ += ["batched"]
+    __doc__ += """
+    Batched
+    --------
+    The following function can loop over a sequence in batches.
+
+    This method has been introduced in Python 3.12, so its length-aware equivalent
+    is only available starting from this Python version.
+
+    .. autofunction:: batched
+    """  # noqa: A001
+
+    class batched(_IterTool):
+        _wrapped = itertools.batched
+
+        def __init__(self, iterable: Iterable[T], n: int) -> None:
+            self.iterable = iterable
+            self._n = n
+            super().__init__(self.iterable, n)
+
+        def __len__(self) -> int:
+            """Calculate the number of batches: ceil(len/n)."""
+            l = len(self.iterable)
+            return ceil(l / self._n)
+
+
+__all__ += ["islice"]
 __doc__ += """
 Slicing
 -------
 The following function slices iterables like :func:`slice`, but lazily.
 
 .. autofunction:: islice
-"""
+"""  # noqa: A001
 
 
 class _Missing:
@@ -253,17 +323,17 @@ class islice(_IterTool):
 
     def __init__(
         self,
-        iterable: t.Iterable[T],
-        start: t.Optional[int],
-        stop: t.Union[int, _Missing] = _missing,
-        step: t.Optional[int] = None,
-    ):
+        iterable: Iterable[T],
+        start: int | None,
+        stop: int | _Missing = _missing,
+        step: int | None = None,
+    ) -> None:
         if stop is _missing:
             start, stop = 0, start
         super().__init__(iterable, start, stop, step)
-        assert start is None or start >= 0
-        assert stop is None or stop >= 0
-        assert step is None or step > 0
+        assert start is None or start >= 0  # noqa: S101
+        assert stop is None or stop >= 0  # noqa: S101
+        assert step is None or step > 0  # noqa: S101
         self.iterable = iterable
         self.start = 0 if start is None else start
         self.stop = stop
@@ -277,27 +347,28 @@ class islice(_IterTool):
 
         if self.start < stop:
             return math.ceil((stop - self.start) / self.step)
-        else:  # start >= stop
-            return 0
+        # else start >= stop
+        return 0
 
 
+__all__ += ["tee"]
 __doc__ += """
 Splitting
 ---------
 The following function splits an iterable into multiple independent iterators.
 
 .. autofunction:: tee
-"""
+"""  # noqa: A001
 
 
 # Can’t subclass _IterTool as we have nothing to be _wrapped.
 # Also we initialized with already created itertools.
 class _tee:
-    def __init__(self, itertool: t.Iterable[T], it_orig: t.Iterable[T]):
+    def __init__(self, itertool: Iterable[T], it_orig: Iterable[T]) -> None:
         self.itertool = itertool
         self.it_orig = it_orig
 
-    def __iter__(self) -> t.Iterator[T]:
+    def __iter__(self) -> Iterator[T]:
         return iter(self.itertool)
 
     def __len__(self) -> int:
@@ -308,23 +379,24 @@ class _tee:
 class tee(metaclass=_WrapDocMeta):
     _wrapped = itertools.tee
 
-    def __init__(self, iterable: t.Iterable[T], n: int = 2):
+    def __init__(self, iterable: Iterable[T], n: int = 2) -> None:
         self.itertools = tuple(_tee(it, iterable) for it in self._wrapped(iterable, n))
 
     def __getitem__(self, item: int) -> _tee:
         return self.itertools[item]
 
-    def __iter__(self) -> t.Iterator[_tee]:
+    def __iter__(self) -> Iterator[_tee]:
         return iter(self.itertools)
 
-    def __reversed__(self) -> t.Iterator[_tee]:
+    def __reversed__(self) -> Iterator[_tee]:
         return reversed(self.itertools)
 
     def __len__(self) -> int:
-        """Number of iterators returned"""
+        """Return number of iterators yielded."""
         return len(self.itertools)
 
 
+__all__ += ["product", "permutations", "combinations", "combinations_with_replacement"]
 __doc__ += """
 Permutations and combinations
 -----------------------------
@@ -336,13 +408,13 @@ The following functions return permutations and combinations of input sequences.
 .. autofunction:: combinations
 .. automethod:: combinations.__len__
 .. autofunction:: combinations_with_replacement
-"""
+"""  # noqa: A001
 
 
 class product(_IterTool):
     _wrapped = itertools.product
 
-    def __init__(self, *iterables: t.Iterable[A], repeat: int = 1):
+    def __init__(self, *iterables: Iterable[A], repeat: int = 1) -> None:
         self.sequences = [tuple(i) for i in iterables]
         self.repeat = repeat
         super().__init__(*self.sequences, repeat=repeat)
@@ -357,13 +429,13 @@ class product(_IterTool):
 class permutations(_IterTool):
     _wrapped = itertools.permutations
 
-    def __init__(self, iterable: t.Iterable, r: int = None):
+    def __init__(self, iterable: Iterable, r: int | None = None) -> None:
         self.elements = tuple(iterable)
         self.r = len(self.elements) if r is None else r
         super().__init__(self.elements, r)
 
     def __len__(self) -> int:
-        """The number of r-permutations of n elements [Uspensky37]_."""
+        """Calculate number of r-permutations of n elements [Uspensky37]_."""
         from math import factorial
 
         n = len(self.elements)
@@ -395,20 +467,20 @@ def _ncomb(n: int, r: int) -> int:
 class combinations(_IterTool):
     _wrapped = itertools.combinations
 
-    def __init__(self, iterable: t.Iterable, r: int):
+    def __init__(self, iterable: Iterable, r: int) -> None:
         self.elements = tuple(iterable)
         self.r = r
         super().__init__(self.elements, r)
 
     def __len__(self) -> int:
-        """The binomial coefficient (n over r)"""
+        """Calculate binomial coefficient (n over r)."""
         return _ncomb(len(self.elements), self.r)
 
 
 class combinations_with_replacement(_IterTool):
     _wrapped = itertools.combinations_with_replacement
 
-    def __init__(self, iterable: t.Iterable, r: int):
+    def __init__(self, iterable: Iterable, r: int) -> None:
         self.elements = tuple(iterable)
         self.r = r
         super().__init__(self.elements, r)
@@ -425,4 +497,4 @@ References
    *Introduction To Mathematical Probability* p. 18,
    `Mcgraw-hill Book Company London
    <https://archive.org/details/in.ernet.dli.2015.263184/page/n8>`__.
-"""
+"""  # noqa: A001
