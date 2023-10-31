@@ -15,6 +15,7 @@ from __future__ import annotations
 import builtins
 import itertools
 import sys
+from math import ceil
 from typing import TYPE_CHECKING, Any, ClassVar, ParamSpec, TypeVar
 
 
@@ -221,6 +222,7 @@ class _IterToolChain(_IterTool):
         self.iterables = iterables
 
     def __len__(self) -> int:
+        """Sum up the length of chained inputs."""
         # Make sure we don’t iterate over a generator or so
         len(self.iterables)
         return sum(map(len, self.iterables))
@@ -255,14 +257,41 @@ if sys.version_info >= (3, 10):
     class pairwise(_IterTool):
         _wrapped = itertools.pairwise
 
-        def __init__(self, iterable: Iterable) -> None:
+        def __init__(self, iterable: Iterable[T]) -> None:
             self.iterable = iterable
             super().__init__(self.iterable)
 
         def __len__(self) -> int:
-            """Return the number of pairs: max(n-1, 0)."""
+            """Calculate the number of pairs: max(len-1, 0)."""
             l = len(self.iterable)
             return l - 1 if l > 0 else 0
+
+
+if sys.version_info >= (3, 12):
+    __all__ += ["batched"]
+    __doc__ += """
+    Batched
+    --------
+    The following function can loop over a sequence in batches.
+
+    This method has been introduced in Python 3.12, so its length-aware equivalent
+    is only available starting from this Python version.
+
+    .. autofunction:: batched
+    """  # noqa: A001
+
+    class batched(_IterTool):
+        _wrapped = itertools.batched
+
+        def __init__(self, iterable: Iterable[T], n: int) -> None:
+            self.iterable = iterable
+            self._n = n
+            super().__init__(self.iterable, n)
+
+        def __len__(self) -> int:
+            """Calculate the number of batches: ceil(len/n)."""
+            l = len(self.iterable)
+            return ceil(l / self._n)
 
 
 __all__ += ["islice"]

@@ -26,6 +26,12 @@ has_pairwise = pytest.mark.skipif(
 )
 
 
+has_batched = pytest.mark.skipif(
+    not hasattr(itertools, "pairwise"),
+    reason="`batched` not available",
+)
+
+
 def exports(mod: ModuleType) -> None:
     if (explicit := getattr(mod, "__all__", None)) is not None:
         yield from explicit
@@ -100,6 +106,16 @@ def test_chain(
 def test_pairwise(n_items: int, n_pairs: int) -> None:
     pairs = itertools_len.pairwise(range(n_items))
     assert len(pairs) == n_pairs
+
+
+@has_batched
+@pytest.mark.parametrize(
+    ("n_items", "batch_size", "n_batches"),
+    [(0, 3, 0), (1, 3, 1), (2, 2, 1), (3, 2, 2), (20, 3, 7)],
+)
+def test_batched(n_items: int, batch_size: int, n_batches: int) -> None:
+    batches = itertools_len.batched(range(n_items), batch_size)
+    assert len(batches) == n_batches
 
 
 @pytest.mark.parametrize(
