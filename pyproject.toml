@@ -33,6 +33,11 @@ python = ['3.9', '3.10', '3.11', '3.12']
 run = 'pytest -vv {args}'
 cov = 'pytest -vv --cov-report=term-missing --cov=src {args}'
 
+[tool.coverage.report]
+exclude_also = [  # those are regexes
+    'if TYPE_CHECKING:',
+]
+
 [tool.ruff.isort]
 lines-after-imports = 2
 
