@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import builtins
 import itertools
+import sys
 from typing import TYPE_CHECKING, Any, ClassVar, ParamSpec, TypeVar
 
 
@@ -22,9 +23,7 @@ if TYPE_CHECKING:
     from types import FunctionType
 
 
-__all__ = [
-    "",
-]
+__all__ = []  # Filled below
 
 A = TypeVar("A")
 T = TypeVar("T")
@@ -60,6 +59,7 @@ class _IterTool(metaclass=_WrapDocMeta):
         return iter(self.itertool)
 
 
+__all__ += ["count", "cycle", "repeat"]
 __doc__ += """
 Infinites
 ---------
@@ -89,6 +89,7 @@ class repeat(_IterTool):
         return self.times
 
 
+__all__ += ["compress", "dropwhile", "filterfalse", "groupby", "takewhile"]
 __doc__ += """
 Shortening/filtering
 --------------------
@@ -106,6 +107,7 @@ groupby = itertools.groupby
 takewhile = itertools.takewhile
 
 
+__all__ += ["accumulate", "starmap", "map", "zip_longest"]
 __doc__ += """
 Mapping
 -------
@@ -196,6 +198,7 @@ class zip_longest(_IterTool):
         return max(len(iterable) for iterable in self.iterables)
 
 
+__all__ += ["chain"]
 __doc__ += """
 Chaining
 --------
@@ -229,26 +232,25 @@ class chain(_IterToolChain):
     def __init__(self, *iterables: Iterable[T]) -> None:
         super().__init__(iterables, *iterables)
 
-    class from_iterable(_IterToolChain):
+    class from_iterable(_IterToolChain):  # noqa: D106
         _wrapped = itertools.chain.from_iterable
 
         def __init__(self, iterables: Iterable[Iterable[T]]) -> None:
             super().__init__(iterables, iterables)
 
 
-__doc__ += """
-Pairwise
---------
-The following function can loop over a sequence in pairs.
+if sys.version_info >= (3, 10):
+    __all__ += ["pairwise"]
+    __doc__ += """
+    Pairwise
+    --------
+    The following function can loop over a sequence in pairs.
 
-This method has been introduced in Python 3.10, so its length-aware equivalent is only
-available starting from this Python version.
+    This method has been introduced in Python 3.10, so its length-aware equivalent
+    is only available starting from this Python version.
 
-.. autofunction:: pairwise
-"""  # noqa: A001
-
-
-if hasattr(itertools, "pairwise"):  # check if it exists in the builtin itertools module
+    .. autofunction:: pairwise
+    """  # noqa: A001
 
     class pairwise(_IterTool):
         _wrapped = itertools.pairwise
@@ -258,10 +260,12 @@ if hasattr(itertools, "pairwise"):  # check if it exists in the builtin itertool
             super().__init__(self.iterable)
 
         def __len__(self) -> int:
+            """Return the number of pairs: max(n-1, 0)."""
             l = len(self.iterable)
             return l - 1 if l > 0 else 0
 
 
+__all__ += ["islice"]
 __doc__ += """
 Slicing
 -------
@@ -312,6 +316,7 @@ class islice(_IterTool):
         return 0
 
 
+__all__ += ["tee"]
 __doc__ += """
 Splitting
 ---------
@@ -356,6 +361,7 @@ class tee(metaclass=_WrapDocMeta):
         return len(self.itertools)
 
 
+__all__ += ["product", "permutations", "combinations", "combinations_with_replacement"]
 __doc__ += """
 Permutations and combinations
 -----------------------------

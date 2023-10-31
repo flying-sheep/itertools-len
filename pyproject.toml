@@ -42,6 +42,9 @@ ignore = [
   'C408',   # dict() calls are fine
   'E74',    # Ambiguous variable/class/… name
   'FIX002', # TODOs are OK
+  'D101',   # Docstrings in classes are wrapped
+  'D105',   # No need to document magic methods
+  'D107',   # Docstrings in __init__ are also wrapped
   'D203',   # No blank line before class body
   'D212',   # Multi-line docstring summary should start at the first line
   'N801',   # We mirror itertools which uses lowercase class names
