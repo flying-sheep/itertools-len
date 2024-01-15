@@ -41,7 +41,7 @@ class _WrapDocMeta(type):
     _wrapped: FunctionType | type
 
     @property
-    def __doc__(cls) -> str:  # noqa: A003
+    def __doc__(cls) -> str:
         # TODO: Allow overriding __doc__
         # https://github.com/flying-sheep/itertools-len/issues/45
         from inspect import getdoc
