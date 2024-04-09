@@ -15,10 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - python-version: '3.9'
-          - python-version: '3.12'
-            cov: true
+        python-version: ['3.9', '3.12']
 
     steps:
     - uses: actions/checkout@v3
@@ -35,8 +32,8 @@ jobs:
     - name: Test with pytest
       run: pytest -v --cov=src --cov-report=xml --color=yes
     - uses: codecov/codecov-action@v3
-      if: ${{ matrix.cov }}
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         flags: unittests
         name: ${{ matrix.python-version }}
+      if: ${{ matrix.python-version == '3.12' }}
