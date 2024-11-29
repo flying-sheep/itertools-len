@@ -114,7 +114,7 @@ groupby = itertools.groupby
 takewhile = itertools.takewhile
 
 
-__all__ += ["accumulate", "starmap", "map", "zip_longest"]
+__all__ += ["accumulate", "map", "starmap", "zip_longest"]
 __doc__ += """
 Mapping
 -------
@@ -396,7 +396,7 @@ class tee(metaclass=_WrapDocMeta):
         return len(self.itertools)
 
 
-__all__ += ["product", "permutations", "combinations", "combinations_with_replacement"]
+__all__ += ["combinations", "combinations_with_replacement", "permutations", "product"]
 __doc__ += """
 Permutations and combinations
 -----------------------------
