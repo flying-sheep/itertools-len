@@ -74,7 +74,7 @@ Infinites
 and are therefore simply re-exported. :func:`repeat` is finite if ``times`` is passed.
 
 .. autofunction:: repeat
-"""  # noqa: A001
+"""
 
 
 count = itertools.count
@@ -104,7 +104,7 @@ Shortening/filtering
 :func:`~itertools.filterfalse`, :func:`~itertools.groupby`, and
 :func:`~itertools.takewhile` all shorten the passed iterable.
 Therefore no length can be determined and they are simply re-exported.
-"""  # noqa: A001
+"""
 
 
 compress = itertools.compress
@@ -125,7 +125,7 @@ For inputs with a length, the output length is the same:
 .. autofunction:: starmap
 .. autofunction:: map
 .. autofunction:: zip_longest
-"""  # noqa: A001
+"""
 
 
 class _IterToolMap(_IterTool):
@@ -214,7 +214,7 @@ Its length is therefore the sum of the inputs’ lengths.
 
 .. autofunction:: chain
 .. autofunction:: itertools_len::chain.from_iterable
-"""  # noqa: A001
+"""
 
 
 class _IterToolChain(_IterTool):
@@ -258,7 +258,7 @@ if sys.version_info >= (3, 10):
     is only available starting from this Python version.
 
     .. autofunction:: pairwise
-    """  # noqa: A001
+    """
 
     class pairwise(_IterTool):
         _wrapped = itertools.pairwise
@@ -284,7 +284,7 @@ if sys.version_info >= (3, 12):
     is only available starting from this Python version.
 
     .. autofunction:: batched
-    """  # noqa: A001
+    """
 
     class batched(_IterTool):
         _wrapped = itertools.batched
@@ -307,7 +307,7 @@ Slicing
 The following function slices iterables like :func:`slice`, but lazily.
 
 .. autofunction:: islice
-"""  # noqa: A001
+"""
 
 
 class _Missing:
@@ -358,7 +358,7 @@ Splitting
 The following function splits an iterable into multiple independent iterators.
 
 .. autofunction:: tee
-"""  # noqa: A001
+"""
 
 
 # Can’t subclass _IterTool as we have nothing to be _wrapped.
@@ -408,7 +408,7 @@ The following functions return permutations and combinations of input sequences.
 .. autofunction:: combinations
 .. automethod:: combinations.__len__
 .. autofunction:: combinations_with_replacement
-"""  # noqa: A001
+"""
 
 
 class product(_IterTool):
@@ -497,4 +497,4 @@ References
    *Introduction To Mathematical Probability* p. 18,
    `Mcgraw-hill Book Company London
    <https://archive.org/details/in.ernet.dli.2015.263184/page/n8>`__.
-"""  # noqa: A001
+"""
