@@ -14,9 +14,13 @@ from __future__ import annotations
 
 import builtins
 import itertools
+import math
 import sys
-from math import ceil
+from inspect import getdoc
+from math import ceil, factorial
 from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
+
+from scipy.special import comb
 
 
 try:
@@ -44,7 +48,6 @@ class _WrapDocMeta(type):
     def __doc__(cls) -> str:
         # TODO: Allow overriding __doc__
         # https://github.com/flying-sheep/itertools-len/issues/45
-        from inspect import getdoc
 
         patched = "\n".join(
             line
@@ -343,7 +346,6 @@ class islice(_IterTool):
         stop = self.stop
         if stop is None or stop > len(self.iterable):
             stop = len(self.iterable)
-        import math
 
         if self.start < stop:
             return math.ceil((stop - self.start) / self.step)
@@ -436,8 +438,6 @@ class permutations(_IterTool):
 
     def __len__(self) -> int:
         """Calculate number of r-permutations of n elements [Uspensky37]_."""
-        from math import factorial
-
         n = len(self.elements)
         return factorial(n) // factorial(n - self.r)
 
@@ -452,8 +452,6 @@ def _ncomb_python(n: int, r: int) -> int:
 
 
 def _ncomb_scipy(n: int, r: int) -> int:
-    from scipy.special import comb
-
     return comb(n, r, exact=True)
 
 
