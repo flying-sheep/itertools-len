@@ -18,15 +18,7 @@ import math
 import sys
 from inspect import getdoc
 from math import ceil, factorial
-from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
-
-from scipy.special import comb
-
-
-try:
-    from typing import ParamSpec
-except ImportError:  # pragma: no cover
-    from typing_extensions import ParamSpec
+from typing import TYPE_CHECKING, Any, ClassVar, ParamSpec, TypeVar
 
 
 if TYPE_CHECKING:
@@ -452,6 +444,8 @@ def _ncomb_python(n: int, r: int) -> int:
 
 
 def _ncomb_scipy(n: int, r: int) -> int:
+    from scipy.special import comb
+
     return comb(n, r, exact=True)
 
 
