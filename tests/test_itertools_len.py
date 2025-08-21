@@ -12,7 +12,7 @@ import itertools_len
 
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable, Generator, Iterable
     from types import ModuleType
 
 
@@ -27,12 +27,12 @@ has_pairwise = pytest.mark.skipif(
 
 
 has_batched = pytest.mark.skipif(
-    not hasattr(itertools, "pairwise"),
+    not hasattr(itertools, "batched"),
     reason="`batched` not available",
 )
 
 
-def exports(mod: ModuleType) -> None:
+def exports(mod: ModuleType) -> Generator[str]:
     if (explicit := getattr(mod, "__all__", None)) is not None:
         yield from explicit
         return

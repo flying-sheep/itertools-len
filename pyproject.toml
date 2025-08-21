@@ -11,10 +11,7 @@ classifiers = [
     'Programming Language :: Python :: 3',
     'Typing :: Typed',
 ]
-requires-python = '>= 3.9'
-dependencies = [
-    'typing-extensions; python_version < "3.10"',
-]
+requires-python = '>= 3.11'
 dynamic = ['version']
 
 [project.optional-dependencies]
@@ -25,13 +22,10 @@ docs = ['sphinx', 'furo']
 [tool.hatch.version]
 source = 'vcs'
 
-[tool.hatch.envs.test]
+[tool.hatch.envs.hatch-test]
 features = ['test', 'speedups']
-[[tool.hatch.envs.test.matrix]]
-python = ['3.9', '3.10', '3.11', '3.12']
-[tool.hatch.envs.test.scripts]
-run = 'pytest -vv {args}'
-cov = 'pytest -vv --cov-report=term-missing --cov=src {args}'
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ['3.11', '3.13']
 
 [tool.coverage.report]
 exclude_also = [  # those are regexes
