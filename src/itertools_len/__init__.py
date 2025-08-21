@@ -242,30 +242,30 @@ class chain(_IterToolChain):
             super().__init__(iterables, iterables)
 
 
-if sys.version_info >= (3, 10):
-    __all__ += ["pairwise"]
-    __doc__ += """
-    Pairwise
-    --------
-    The following function can loop over a sequence in pairs.
+__all__ += ["pairwise"]
+__doc__ += """
+Pairwise
+--------
+The following function can loop over a sequence in pairs.
 
-    This method has been introduced in Python 3.10, so its length-aware equivalent
-    is only available starting from this Python version.
+This method has been introduced in Python 3.10, so its length-aware equivalent
+is only available starting from this Python version.
 
-    .. autofunction:: pairwise
-    """
+.. autofunction:: pairwise
+"""
 
-    class pairwise(_IterTool):
-        _wrapped = itertools.pairwise
 
-        def __init__(self, iterable: Iterable[T]) -> None:
-            self.iterable = iterable
-            super().__init__(self.iterable)
+class pairwise(_IterTool):
+    _wrapped = itertools.pairwise
 
-        def __len__(self) -> int:
-            """Calculate the number of pairs: max(len-1, 0)."""
-            l = len(self.iterable)
-            return l - 1 if l > 0 else 0
+    def __init__(self, iterable: Iterable[T]) -> None:
+        self.iterable = iterable
+        super().__init__(self.iterable)
+
+    def __len__(self) -> int:
+        """Calculate the number of pairs: max(len-1, 0)."""
+        l = len(self.iterable)
+        return l - 1 if l > 0 else 0
 
 
 if sys.version_info >= (3, 12):
@@ -444,7 +444,7 @@ def _ncomb_python(n: int, r: int) -> int:
 
 
 def _ncomb_scipy(n: int, r: int) -> int:
-    from scipy.special import comb
+    from scipy.special import comb  # noqa: PLC0415
 
     return comb(n, r, exact=True)
 
