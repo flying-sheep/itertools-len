@@ -24,11 +24,8 @@ source = 'vcs'
 
 [tool.hatch.envs.hatch-test]
 features = ['test', 'speedups']
-[[tool.hatch.envs.test.matrix]]
+[[tool.hatch.envs.hatch-test.matrix]]
 python = ['3.11', '3.13']
-[tool.hatch.envs.test.scripts]
-run = 'pytest -vv {args}'
-cov = 'pytest -vv --cov-report=term-missing --cov=src {args}'
 
 [tool.coverage.report]
 exclude_also = [  # those are regexes
