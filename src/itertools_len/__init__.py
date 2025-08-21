@@ -18,12 +18,18 @@ import math
 import sys
 from inspect import getdoc
 from math import ceil, factorial
-from typing import TYPE_CHECKING, Any, ClassVar, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, ParamSpec, TypeVar, overload
 
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
     from types import FunctionType
+
+    _T1 = TypeVar("_T1")
+    _T2 = TypeVar("_T2")
+    _T3 = TypeVar("_T3")
+    _T4 = TypeVar("_T4")
+    _T5 = TypeVar("_T5")
 
 
 __all__ = []  # Filled below
@@ -174,14 +180,173 @@ class starmap(_IterToolMap):
 class map(_IterTool):  # noqa: A001
     _wrapped = builtins.map
 
-    # Similar as with starmap
-    def __init__(self, func: Callable[..., T], *iterables: Iterable[Any]) -> None:
-        super().__init__(func, *iterables)
-        self.iterables = iterables
+    if sys.version_info >= (3, 14):
+        strict: ClassVar[bool]
 
-    def __len__(self) -> int:
+        @overload
+        def __init__(
+            self,
+            func: Callable[[_T1], T],
+            iterable: Iterable[_T1],
+            /,
+            *,
+            strict: bool = False,
+        ) -> None: ...
+        @overload
+        def __init__(
+            self,
+            func: Callable[[_T1, _T2], T],
+            iterable: Iterable[_T1],
+            iter2: Iterable[_T2],
+            /,
+            *,
+            strict: bool = False,
+        ) -> None: ...
+        @overload
+        def __init__(
+            self,
+            func: Callable[[_T1, _T2, _T3], T],
+            iterable: Iterable[_T1],
+            iter2: Iterable[_T2],
+            iter3: Iterable[_T3],
+            /,
+            *,
+            strict: bool = False,
+        ) -> None: ...
+        @overload
+        def __init__(
+            self,
+            func: Callable[[_T1, _T2, _T3, _T4], T],
+            iterable: Iterable[_T1],
+            iter2: Iterable[_T2],
+            iter3: Iterable[_T3],
+            iter4: Iterable[_T4],
+            /,
+            *,
+            strict: bool = False,
+        ) -> None: ...
+        @overload
+        def __init__(
+            self,
+            func: Callable[[_T1, _T2, _T3, _T4, _T5], T],
+            iterable: Iterable[_T1],
+            iter2: Iterable[_T2],
+            iter3: Iterable[_T3],
+            iter4: Iterable[_T4],
+            iter5: Iterable[_T5],
+            /,
+            *,
+            strict: bool = False,
+        ) -> None: ...
+        @overload
+        def __init__(
+            self,
+            func: Callable[..., T],
+            iterable: Iterable[Any],
+            iter2: Iterable[Any],
+            iter3: Iterable[Any],
+            iter4: Iterable[Any],
+            iter5: Iterable[Any],
+            iter6: Iterable[Any],
+            /,
+            *iterables: Iterable[Any],
+            strict: bool = False,
+        ) -> None: ...
+
+        # Similar as with starmap
+        def __init__(
+            self,
+            func: Callable[..., T],
+            *iterables: Iterable[Any],
+            strict: bool = False,
+        ) -> None:
+            super().__init__(func, *iterables)
+            self.strict = strict
+            self.iterables = iterables
+
+        def __len__(self) -> int:
+            """Return length if possible."""
+            return self._len_strict() if self.strict else self._len_loose()
+    else:
+
+        @overload
+        def __init__(
+            self, func: Callable[[_T1], T], iterable: Iterable[_T1], /
+        ) -> None: ...
+        @overload
+        def __init__(
+            self,
+            func: Callable[[_T1, _T2], T],
+            iterable: Iterable[_T1],
+            iter2: Iterable[_T2],
+            /,
+        ) -> None: ...
+        @overload
+        def __init__(
+            self,
+            func: Callable[[_T1, _T2, _T3], T],
+            iterable: Iterable[_T1],
+            iter2: Iterable[_T2],
+            iter3: Iterable[_T3],
+            /,
+        ) -> None: ...
+        @overload
+        def __init__(
+            self,
+            func: Callable[[_T1, _T2, _T3, _T4], T],
+            iterable: Iterable[_T1],
+            iter2: Iterable[_T2],
+            iter3: Iterable[_T3],
+            iter4: Iterable[_T4],
+            /,
+        ) -> None: ...
+        @overload
+        def __init__(
+            self,
+            func: Callable[[_T1, _T2, _T3, _T4, _T5], T],
+            iterable: Iterable[_T1],
+            iter2: Iterable[_T2],
+            iter3: Iterable[_T3],
+            iter4: Iterable[_T4],
+            iter5: Iterable[_T5],
+            /,
+        ) -> None: ...
+        @overload
+        def __init__(
+            self,
+            func: Callable[..., T],
+            iterable: Iterable[Any],
+            iter2: Iterable[Any],
+            iter3: Iterable[Any],
+            iter4: Iterable[Any],
+            iter5: Iterable[Any],
+            iter6: Iterable[Any],
+            /,
+            *iterables: Iterable[Any],
+        ) -> None: ...
+
+        # Similar as with starmap
+        def __init__(self, func: Callable[..., T], *iterables: Iterable[Any]) -> None:
+            super().__init__(func, *iterables)
+            self.iterables = iterables
+
+        def __len__(self) -> int:
+            """Return length of the shortest iterable."""
+            return self._len_loose()
+
+    def _len_loose(self) -> int:
         """Return length of the shortest iterable."""
         return min(len(iterable) for iterable in self.iterables)
+
+    def _len_strict(self) -> int:
+        """Return length of an iterable that has a length."""
+        e: TypeError | None = None
+        for iterable in self.iterables:
+            try:
+                return len(iterable)
+            except TypeError as _e:
+                e = _e
+        raise e from None
 
 
 class zip_longest(_IterTool):
