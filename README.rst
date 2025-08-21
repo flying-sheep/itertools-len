@@ -7,8 +7,8 @@ itertools-len
    :target: https://pypi.org/project/itertools-len
 .. |docs| image:: https://readthedocs.org/projects/itertools-len/badge/?version=latest
    :target: https://itertools-len.readthedocs.io
-.. |ci| image:: https://github.com/flying-sheep/itertools-len/actions/workflows/python-package.yml/badge.svg
-   :target: https://github.com/flying-sheep/itertools-len/actions/workflows/python-package.yml
+.. |ci| image:: https://github.com/flying-sheep/itertools-len/actions/workflows/ci.yml/badge.svg
+   :target: https://github.com/flying-sheep/itertools-len/actions/workflows/ci.yml
 .. |cov| image:: https://codecov.io/gh/flying-sheep/itertools-len/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/flying-sheep/itertools-len
 
