@@ -16,16 +16,24 @@ dynamic = ['version']
 
 [project.optional-dependencies]
 speedups = ['scipy']
+
+[dependency-groups]
 test = ['pytest', 'pytest-cov']
 docs = ['sphinx', 'furo']
 
 [tool.hatch.version]
 source = 'vcs'
 
-[tool.hatch.envs.hatch-test]
-features = ['test', 'speedups']
-[[tool.hatch.envs.hatch-test.matrix]]
-python = ['3.11', '3.13']
+[tool.hatch]
+envs.docs.dependency-groups = ['docs']
+envs.docs.scripts.build = "sphinx-build -M html docs docs/_build -W {args}"
+envs.docs.scripts.open = "python3 -m webbrowser -t docs/_build/html/index.html"
+envs.docs.scripts.clean = "git clean -fdX -- {args:docs}"
+envs.hatch-test.features = ['speedups']
+envs.hatch-test.dependency-groups = ['test']
+envs.hatch-test.matrix = [
+  { python = ['3.11', '3.14'] }
+]
 
 [tool.coverage.report]
 exclude_also = [  # those are regexes
