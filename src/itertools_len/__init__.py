@@ -464,7 +464,7 @@ __all__ += ["islice"]
 __doc__ += """
 Slicing
 -------
-The following function slices iterables like :func:`slice`, but lazily.
+The following function slices iterables like :class:`slice`, but lazily.
 
 .. autofunction:: islice
 """
