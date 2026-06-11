@@ -11,6 +11,11 @@ author = "Philipp A."
 language = "en"
 
 nitpicky = True
+nitpick_ignore = [
+    ("py:class", "A"),
+    ("py:class", "T"),
+    ("py:class", "MISSING"),
+]
 
 # Extensions
 extensions = [

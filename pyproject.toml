@@ -29,6 +29,7 @@ docs = [ "furo", "sphinx" ]
 
 [tool.hatch]
 version.source = "vcs"
+envs.default.installer = "uv"
 envs.docs.scripts.build = "sphinx-build -M html docs docs/_build -W {args}"
 envs.docs.scripts.clean = "git clean -fdX -- {args:docs}"
 envs.docs.scripts.open = "python3 -m webbrowser -t docs/_build/html/index.html"

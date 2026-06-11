@@ -16,6 +16,7 @@ import builtins
 import itertools
 import math
 import sys
+from enum import Enum
 from inspect import getdoc
 from math import ceil, factorial
 from typing import TYPE_CHECKING, Any, ClassVar, ParamSpec, TypeVar, overload
@@ -470,25 +471,39 @@ The following function slices iterables like :class:`slice`, but lazily.
 """
 
 
-class _Missing:
+class MISSING(Enum):
+    MISSING = "MISSING"
+
     def __repr__(self) -> str:
-        return "missing"  # pragma: no cover
+        return "MISSING"  # pragma: no cover
 
 
-_missing = _Missing()
+missing = MISSING.MISSING
 
 
 class islice(_IterTool):
     _wrapped = itertools.islice
 
+    @overload
+    def __init__(self, iterable: Iterable[T], stop: int | None) -> None: ...
+
+    @overload
     def __init__(
         self,
         iterable: Iterable[T],
         start: int | None,
-        stop: int | None | _Missing = _missing,
+        stop: int | None,
+        step: int | None = None,
+    ) -> None: ...
+
+    def __init__(
+        self,
+        iterable: Iterable[T],
+        start: int | None,
+        stop: int | None | MISSING = missing,
         step: int | None = None,
     ) -> None:
-        if stop is _missing:
+        if stop is missing:
             start, stop = 0, start
         super().__init__(iterable, start, stop, step)
         assert start is None or start >= 0  # noqa: S101
