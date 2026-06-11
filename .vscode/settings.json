@@ -9,4 +9,6 @@
             "source.organizeImports": "always",
         },
     },
+    "python-envs.defaultEnvManager": "pypa.hatch:hatch",
+    "python-envs.defaultPackageManager": "pypa.hatch:hatch",
 }
