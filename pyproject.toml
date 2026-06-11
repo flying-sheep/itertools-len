@@ -1,76 +1,71 @@
-[project]
-name = 'itertools-len'
-authors = [{ name = 'Philipp A.', email = 'flying-sheep@web.de' }]
-urls.Source = 'https://github.com/flying-sheep/itertools-len'
-urls.Documentation = 'https://itertools-len.readthedocs.io/'
-readme = 'README.rst'
-license = 'GPL-3.0-or-later'
-classifiers = [
-    'Development Status :: 5 - Production/Stable',
-    'Intended Audience :: Developers',
-    'Programming Language :: Python :: 3',
-    'Typing :: Typed',
-]
-requires-python = '>= 3.11'
-dynamic = ['version']
+[build-system]
+build-backend = "hatchling.build"
+requires = [ "hatch-vcs", "hatchling" ]
 
-[project.optional-dependencies]
-speedups = ['scipy']
+[project]
+name = "itertools-len"
+readme = "README.rst"
+license = "GPL-3.0-or-later"
+authors = [ { name = "Philipp A.", email = "flying-sheep@web.de" } ]
+requires-python = ">=3.11"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Typing :: Typed",
+]
+dynamic = [ "version" ]
+optional-dependencies.speedups = [ "scipy" ]
+urls.Documentation = "https://itertools-len.readthedocs.io/"
+urls.Source = "https://github.com/flying-sheep/itertools-len"
 
 [dependency-groups]
-test = ['pytest', 'pytest-cov']
-docs = ['sphinx', 'furo']
-
-[tool.hatch.version]
-source = 'vcs'
+test = [ "pytest", "pytest-cov" ]
+docs = [ "furo", "sphinx" ]
 
 [tool.hatch]
-envs.docs.dependency-groups = ['docs']
+version.source = "vcs"
 envs.docs.scripts.build = "sphinx-build -M html docs docs/_build -W {args}"
-envs.docs.scripts.open = "python3 -m webbrowser -t docs/_build/html/index.html"
 envs.docs.scripts.clean = "git clean -fdX -- {args:docs}"
-envs.hatch-test.features = ['speedups']
-envs.hatch-test.dependency-groups = ['test']
-envs.hatch-test.matrix = [
-  { python = ['3.11', '3.14'] }
-]
-
-[tool.coverage.report]
-exclude_also = [  # those are regexes
-    'if TYPE_CHECKING:',
-]
+envs.docs.scripts.open = "python3 -m webbrowser -t docs/_build/html/index.html"
+envs.docs.dependency-groups = [ "docs" ]
+envs.hatch-test.features = [ "speedups" ]
+envs.hatch-test.matrix = [ { python = [ "3.11", "3.14" ] } ]
+envs.hatch-test.dependency-groups = [ "test" ]
 
 [tool.ruff]
-src = ['src', 'tests']
-[tool.ruff.lint]
-select = ['ALL']
-ignore = [
-  'Q',      # Quotes covered by formatter
-  'C408',   # dict() calls are fine
-  'COM812', # Conflicts with formatter
-  'E74',    # Ambiguous variable/class/… name
-  'FIX002', # TODOs are OK
-  'D101',   # Docstrings in classes are wrapped
-  'D105',   # No need to document magic methods
-  'D107',   # Docstrings in __init__ are also wrapped
-  'D203',   # No blank line before class body
-  'D212',   # Multi-line docstring summary should start at the first line
-  'N801',   # We mirror itertools which uses lowercase class names
-  'TD002',  # No TODO names
+src = [ "src", "tests" ]
+lint.select = [ "ALL" ]
+lint.ignore = [
+  "C408",   # dict() calls are fine
+  "COM812", # Conflicts with formatter
+  "D101",   # Docstrings in classes are wrapped
+  "D105",   # No need to document magic methods
+  "D107",   # Docstrings in __init__ are also wrapped
+  "D203",   # No blank line before class body
+  "D212",   # Multi-line docstring summary should start at the first line
+  "E74",    # Ambiguous variable/class/… name
+  "FIX002", # TODOs are OK
+  "N801",   # We mirror itertools which uses lowercase class names
+  "Q",      # Quotes covered by formatter
+  "TD002",  # No TODO names
 ]
-allowed-confusables = ['×', '’']
-[tool.ruff.lint.extend-per-file-ignores]
-'docs/*' = ['INP001'] # No __init__.py in docs
-'tests/*' = [
-    'D103',    # No docstrings necessary
-    'INP001',  # No __init__.py in tests
-    'PLR2004', # Magic values in tests are fine
-    'S101',    # Pytest prefers assert
-    'SLF001',  # Private access in test is file
+lint.extend-per-file-ignores."docs/*" = [ "INP001" ]  # No __init__.py in docs
+lint.extend-per-file-ignores."tests/*" = [
+  "D103",    # No docstrings necessary
+  "INP001",  # No __init__.py in tests
+  "PLR2004", # Magic values in tests are fine
+  "S101",    # Pytest prefers assert
+  "SLF001",  # Private access in test is file
 ]
-[tool.ruff.lint.isort]
-lines-after-imports = 2
+lint.allowed-confusables = [ "×", "’" ]
+lint.isort.lines-after-imports = 2
 
-[build-system]
-requires = ['hatchling', 'hatch-vcs']
-build-backend = 'hatchling.build'
+[tool.coverage]
+report.exclude_also = [  # those are regexes
+  "if TYPE_CHECKING:",
+]

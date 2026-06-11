@@ -485,7 +485,7 @@ class islice(_IterTool):
         self,
         iterable: Iterable[T],
         start: int | None,
-        stop: int | _Missing = _missing,
+        stop: int | None | _Missing = _missing,
         step: int | None = None,
     ) -> None:
         if stop is _missing:
