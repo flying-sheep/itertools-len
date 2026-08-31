@@ -68,6 +68,7 @@ lint.allowed-confusables = [ "×", "’" ]
 lint.isort.lines-after-imports = 2
 
 [tool.coverage]
-report.exclude_also = [  # those are regexes
+report.exclude_also = [
+  # those are regexes
   "if TYPE_CHECKING:",
 ]
